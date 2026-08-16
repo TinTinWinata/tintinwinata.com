@@ -135,15 +135,8 @@ export const awards = [
 ];
 
 export const certifications = [
-  { title: "AWS Certified Developer — Associate", org: "Amazon Web Services", year: "2024", mark: "AWS", url: "https://www.credly.com/badges/cf67335c-b7e4-4456-bde7-bf912ec0c464/linked_in_profile" },
-  { title: "Certified Associate Data Modeler", org: "MongoDB", year: "2026", mark: "MDB", url: "https://www.credly.com/go/Qhx5efmV" },
-  { title: "Cloud Certified Professional", org: "Alibaba Cloud", year: "2024", mark: "ACP", url: "https://edu.alibabacloud.com/clouder/Certificate/search?type=1&num=IACP01240600124396" },
-  { title: "Cloud Certified Associate", org: "Alibaba Cloud", year: "2024", mark: "ACA", url: "https://edu.alibabacloud.com/clouder/Certificate/search?type=1&num=IACA01240500118106L" },
-];
-
-export const skillGroups = [
-  { label: "Languages", value: "TypeScript · JavaScript · Python · Go · C# · Java · C++ · C · Kotlin · PHP · SQL" },
-  { label: "Frameworks", value: "React · Node.js · Express · ASP.NET · Svelte · Laravel · Flask · Remix · GraphQL" },
-  { label: "Infrastructure", value: "Kubernetes · Docker · Helm · RabbitMQ · Redis · CI/CD · Prometheus · Loki · Grafana · AWS · Azure" },
-  { label: "Data & AI", value: "MongoDB · PostgreSQL · Vector Search · RAG · Machine Learning · Deep Learning · Firebase" },
+  { title: "AWS Certified Developer — Associate", org: "Amazon Web Services", year: "2024", icon: "/certification/aws.svg", iconAlt: "Amazon Web Services", url: "https://www.credly.com/badges/cf67335c-b7e4-4456-bde7-bf912ec0c464/linked_in_profile" },
+  { title: "Certified Associate Data Modeler", org: "MongoDB", year: "2026", icon: "/certification/mongodb.svg", iconAlt: "MongoDB", url: "https://www.credly.com/go/Qhx5efmV" },
+  { title: "Cloud Certified Professional", org: "Alibaba Cloud", year: "2024", icon: "/certification/alibaba.svg", iconAlt: "Alibaba Cloud", url: "https://edu.alibabacloud.com/clouder/Certificate/search?type=1&num=IACP01240600124396" },
+  { title: "Cloud Certified Associate", org: "Alibaba Cloud", year: "2024", icon: "/certification/alibaba.svg", iconAlt: "Alibaba Cloud", url: "https://edu.alibabacloud.com/clouder/Certificate/search?type=1&num=IACA01240500118106L" },
 ];

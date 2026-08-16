@@ -51,20 +51,8 @@ main {
 }
 
 .intro {
-  display: grid;
-  grid-template-columns: 132px 1fr;
-  gap: 28px;
-  align-items: start;
+  display: block;
   margin-bottom: 58px;
-}
-
-.intro > img {
-  width: 132px;
-  height: 132px;
-  object-fit: cover;
-  object-position: center 18%;
-  border-radius: 7px;
-  background: #19375a;
 }
 
 .eyebrow,
@@ -172,9 +160,7 @@ section > p { color: var(--body); }
 
 .company-wrap {
   position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
+  display: inline-block;
 }
 
 .company-link {
@@ -187,18 +173,6 @@ section > p { color: var(--body); }
 }
 
 .company-link:hover { color: var(--accent); border-bottom-color: var(--accent); }
-
-.company-info {
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  background: transparent;
-  color: var(--muted);
-  font: 500 11px/18px var(--mono);
-  cursor: pointer;
-}
 
 .company-card {
   position: absolute;
@@ -266,7 +240,7 @@ section > p { color: var(--body); }
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: top left;
+  object-position: center;
   transition: transform .35s ease;
 }
 
@@ -359,51 +333,59 @@ section > p { color: var(--body); }
 .award-list a:hover { color: var(--accent); }
 .award-list small { display: block; margin-top: 1px; color: var(--muted); font-size: 14px; }
 
-.certificate-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
+.certificate-list { display: grid; }
 
-.certificate-grid a {
+.certificate-list a {
   display: grid;
-  grid-template-columns: 42px 1fr;
-  gap: 12px;
+  grid-template-columns: 104px 62px minmax(0, 1fr);
+  gap: 18px;
   align-items: center;
-  padding: 13px;
-  border: 1px solid var(--line-soft);
-  border-radius: 5px;
+  margin: 0 -10px;
+  padding: 11px 10px;
+  border-radius: 4px;
   text-decoration: none;
-  transition: border-color .15s ease, background-color .15s ease;
+  transition: color .15s ease, background-color .15s ease;
 }
 
-.certificate-grid a:hover { border-color: var(--accent-soft); background: #f7f8f5; }
+.certificate-list a:hover { color: var(--accent); background: #f2efe9; }
 
-.certificate-mark {
+.certificate-icon {
   display: grid;
   place-items: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: #fbede8;
-  color: var(--accent);
-  font: 500 10px/1 var(--mono);
+  width: 104px;
 }
 
-.certificate-grid strong { display: block; font-size: 14px; line-height: 1.35; }
-.certificate-grid small { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; line-height: 1.4; }
+.certificate-icon img { width: 34px; height: 34px; object-fit: contain; }
 
-.skills-list {
+.certificate-list time,
+.publication-row time {
+  color: var(--muted);
+  font: 12.5px/1.5 var(--mono);
+}
+
+.certificate-copy { display: grid; gap: 2px; }
+.certificate-copy > span { font-size: 17px; line-height: 1.5; }
+.certificate-copy small,
+.publication-row small { color: var(--muted); font-size: 14.5px; line-height: 1.5; }
+
+.publication-row {
   display: grid;
-  gap: 12px;
-  margin-top: 24px;
-  padding-top: 21px;
-  border-top: 1px solid var(--line);
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: 18px;
+  align-items: baseline;
+  margin: 0 -10px;
+  padding: 9px 10px;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: color .15s ease, background-color .15s ease;
 }
 
-.skills-list > div { display: grid; grid-template-columns: 115px 1fr; gap: 15px; }
-.skills-list h3 { margin: 0; color: var(--muted); font: 12px/1.75 var(--mono); }
-.skills-list p { margin: 0; color: var(--body); font-size: 15px; line-height: 1.6; }
+.publication-row:hover { color: var(--accent); background: #f2efe9; }
+.publication-row > span { display: grid; gap: 2px; }
+.publication-row > span > span { font-size: 17px; line-height: 1.5; }
+
+.education-copy { margin: 0; }
+
 
 footer {
   display: flex;
@@ -432,11 +414,9 @@ footer p:not(.footer-kicker) { margin: 0; color: var(--muted); font-size: 14px; 
 
 @media (max-width: 680px) {
   .reading-column { width: min(100% - 36px, 560px); padding: 42px 0 54px; }
-  .intro { grid-template-columns: 92px 1fr; gap: 18px; margin-bottom: 48px; }
-  .intro > img { width: 92px; height: 92px; }
+  .intro { margin-bottom: 48px; }
   .eyebrow { font-size: 10px; letter-spacing: .11em; }
-  .lede { grid-column: 1 / -1; margin-top: 7px; font-size: 18px; }
-  .contact-links { grid-column: 1 / -1; margin-top: 0; }
+  .lede { font-size: 18px; }
   section { margin-top: 50px; }
   .timeline::before { left: 5px; }
   .timeline-item { grid-template-columns: 12px minmax(0, 1fr); }
@@ -445,8 +425,8 @@ footer p:not(.footer-kicker) { margin: 0; color: var(--muted); font-size: 14px; 
   .timeline-copy { grid-column: 2; padding-left: 16px; }
   .project { grid-template-columns: 1fr; gap: 13px; }
   .project-image-wrap { height: auto; aspect-ratio: 16 / 8; }
-  .certificate-grid { grid-template-columns: 1fr; }
-  .skills-list > div { grid-template-columns: 1fr; gap: 2px; }
+  .certificate-list a { grid-template-columns: 46px 52px minmax(0, 1fr); gap: 10px; }
+  .certificate-icon { width: 46px; }
   footer { align-items: start; flex-direction: column; }
 }
 

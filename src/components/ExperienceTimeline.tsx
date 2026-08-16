@@ -25,15 +25,6 @@ export default function ExperienceTimeline({ experiences }: Props) {
                 }}
               >
                 <a className="company-link" href={experience.url}>{experience.company}</a>
-                <button
-                  className="company-info"
-                  type="button"
-                  aria-label={`About ${experience.company}`}
-                  aria-expanded={isOpen}
-                  onClick={() => setOpenIndex(isOpen ? null : index)}
-                >
-                  i
-                </button>
                 {isOpen && (
                   <aside className="company-card" role="status">
                     <div className="company-logo-wrap">

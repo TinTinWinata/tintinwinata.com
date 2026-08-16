@@ -2,7 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import ExperienceTimeline from "../components/ExperienceTimeline";
 import OlderProjects from "../components/OlderProjects";
-import { articles, awards, certifications, earlierProjects, experiences, projects, skillGroups } from "../data/portfolio";
+import { articles, awards, certifications, earlierProjects, experiences, projects } from "../data/portfolio";
 
 const title = "Justine Winata — AI & Fullstack Engineer";
 const description = "Singapore-based engineer building production AI systems, video infrastructure and useful software.";
@@ -12,7 +12,6 @@ const description = "Singapore-based engineer building production AI systems, vi
   <main>
     <div class="reading-column">
       <header class="intro">
-        <img src="/profile.png" width="326" height="387" alt="Portrait of Justine Winata" />
         <div>
           <p class="eyebrow">AI & Fullstack Engineer · Singapore</p>
           <h1>Justine Winata</h1>
@@ -82,27 +81,36 @@ const description = "Singapore-based engineer building production AI systems, vi
         </div>
       </section>
 
-      <section aria-labelledby="qualifications-heading">
-        <h2 id="qualifications-heading">Qualifications</h2>
-        <div class="certificate-grid">
+      <section aria-labelledby="certifications-heading">
+        <h2 id="certifications-heading">Certifications</h2>
+        <div class="certificate-list">
           {certifications.map((certificate) => (
             <a href={certificate.url}>
-              <span class="certificate-mark" aria-hidden="true">{certificate.mark}</span>
-              <span>
-                <strong>{certificate.title}</strong>
-                <small>{certificate.org} · {certificate.year}</small>
+              <span class="certificate-icon"><img src={certificate.icon} alt={certificate.iconAlt} /></span>
+              <time>{certificate.year}</time>
+              <span class="certificate-copy">
+                <span>{certificate.title}</span>
+                <small>{certificate.org}</small>
               </span>
             </a>
           ))}
         </div>
-        <div class="skills-list">
-          {skillGroups.map((group) => (
-            <div>
-              <h3>{group.label}</h3>
-              <p>{group.value}</p>
-            </div>
-          ))}
-        </div>
+      </section>
+
+      <section aria-labelledby="publications-heading">
+        <h2 id="publications-heading">Publications</h2>
+        <a class="publication-row" href="https://ieeexplore.ieee.org/document/10327087/">
+          <time>2023</time>
+          <span>
+            <span>Analysis ChatGPT Potential: Transforming Software Development with AI Chat Bots</span>
+            <small>IEEE Xplore</small>
+          </span>
+        </a>
+      </section>
+
+      <section aria-labelledby="education-heading">
+        <h2 id="education-heading">Education</h2>
+        <p class="education-copy">I studied computer science at <a class="inline-link" href="https://binus.ac.id/"><strong>BINUS University</strong></a>, GPA 3.92.</p>
       </section>
 
       <footer>
