@@ -28,13 +28,15 @@ export default function ExperienceTimeline({ experiences }: Props) {
                 {isOpen && (
                   <aside className="company-card" role="status">
                     <div className="company-logo-wrap">
-                      <img
-                        src={experience.logo}
-                        alt={experience.logoAlt}
-                        width="92"
-                        height="92"
-                        style={{ display: "block", width: "auto", height: "auto", maxWidth: "100%", maxHeight: 92, objectFit: "contain" }}
-                      />
+                      <div className={experience.logoText ? "company-logo-lockup" : undefined}>
+                        <img
+                          src={experience.logo}
+                          alt={experience.logoAlt}
+                          width="220"
+                          height="92"
+                        />
+                        {experience.logoText && <span>{experience.logoText}</span>}
+                      </div>
                     </div>
                     <div className="company-card-copy">
                       <strong>{experience.company}</strong>

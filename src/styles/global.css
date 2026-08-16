@@ -201,9 +201,31 @@ section > p { color: var(--body); }
   display: block;
   width: auto;
   height: auto;
-  max-width: 100%;
+  max-width: 220px;
   max-height: 92px;
   object-fit: contain;
+}
+
+.company-logo-lockup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  max-width: 100%;
+}
+
+.company-logo-lockup img {
+  width: 70px;
+  height: 70px;
+}
+
+.company-logo-lockup span {
+  max-width: 120px;
+  color: #292545;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.05;
 }
 
 .company-card-copy {

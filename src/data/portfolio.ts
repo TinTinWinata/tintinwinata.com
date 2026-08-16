@@ -6,6 +6,7 @@ export type Experience = {
   about: string;
   logo: string;
   logoAlt: string;
+  logoText?: string;
   prose: string;
 };
 
@@ -32,7 +33,7 @@ export const experiences: Experience[] = [
     dates: "2025 — now",
     url: "https://cynapse.ai/",
     about: "A video-intelligence company in Singapore whose platform runs across organisations in Asia and the US.",
-    logo: "/company/cynapse.jpg",
+    logo: "/company/cynapse-wordmark.png",
     logoAlt: "cynapse.ai logo",
     prose:
       "I built a distributed video pipeline serving 2,000 CCTV cameras at 16,000 frames per second on Kubernetes, with RabbitMQ retry and backpressure handling. I then joined the CEO-led AI Lab, where I work on natural-language video search over 75M detections and an on-call agent that reads logs, files tickets and opens pull requests with fixes.",
@@ -43,7 +44,7 @@ export const experiences: Experience[] = [
     dates: "2024 — 2025",
     url: "https://www.linkedin.com/company/the-software-practice-pte-ltd/",
     about: "A Singapore software consultancy delivering products for government agencies, major banks and airports.",
-    logo: "/company/tsp.jpg",
+    logo: "/company/tsp-wordmark.png",
     logoAlt: "The Software Practice logo",
     prose:
       "Built an administration portal for the Singapore Government on a pipeline doing 2+ production deploys a day, with test suites at 85% coverage using Moq and the AAA pattern, and Selenium automation that cut manual QA time by 4x.",
@@ -56,6 +57,7 @@ export const experiences: Experience[] = [
     about: "An Indonesian software studio building web and mobile products for local businesses.",
     logo: "/company/questlabs.jpg",
     logoAlt: "The Questlabs ID logo",
+    logoText: "The Questlabs ID",
     prose:
       "Deployed an online store for automotive parts that reached 100 product sales a month on 10+ custom PHP plugins, and a POS system for an antivirus distributor that replaced manual processes and pushed gross sales past IDR 200M a month.",
   },
@@ -65,7 +67,7 @@ export const experiences: Experience[] = [
     dates: "2024",
     url: "https://www.freelancer.com/",
     about: "Independent client work for teams in Uzbekistan, India and Indonesia.",
-    logo: "/company/freelancer.png",
+    logo: "/company/freelancer-wordmark.png",
     logoAlt: "Freelancer.com logo",
     prose:
       "Shipped three responsive applications in six months. One production-management platform handles 16,000+ entries and generates reports 96% faster than the process it replaced.",
