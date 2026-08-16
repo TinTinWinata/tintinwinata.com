@@ -86,7 +86,7 @@ export const experiences: Experience[] = [
 export const projects: Project[] = [
   {
     name: "Cakra Motor HRIS",
-    dates: "2024 — now",
+    dates: "2024 — 2025",
     prose: "A web and React Native product for managing employee structure, with Google Maps integration so attendance is tied to a real location.",
     image: "/projects/cakra-hris.jpg",
     imageAlt: "Cakra Motor HRIS organisation management interface",
