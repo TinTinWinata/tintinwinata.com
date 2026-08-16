@@ -56,8 +56,7 @@ main {
 }
 
 .eyebrow,
-section > h2,
-.footer-kicker {
+section > h2 {
   margin: 0;
   font-family: var(--mono);
   font-size: 12px;
@@ -398,7 +397,7 @@ footer {
 }
 
 footer h2 { margin: 6px 0 3px; font-size: 26px; line-height: 1.25; }
-footer p:not(.footer-kicker) { margin: 0; color: var(--muted); font-size: 14px; }
+footer p { margin: 0; color: var(--muted); font-size: 14px; }
 
 .email-button {
   flex: none;

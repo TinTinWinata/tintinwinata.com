@@ -131,7 +131,7 @@ export const awards = [
   { place: "1st", title: "Web Development Competition — healthcare platform with an ML diabetes detector", org: "Tarumanagara University · 2023" },
   { place: "Top 10", title: "Technoscape Hackathon — banking app with logistic-regression risk analysis", org: "BINUS University · 2023" },
   { place: "3rd", title: "Frontend Development Competition", org: "Dev Up Rising, Algobash · 2023" },
-  { place: "Finalist", title: "AI Innovation Challenge — diagnostic app using DCNN, SVM and ANN models", org: "University of Indonesia" },
+  { place: "Top 10", title: "AI Innovation Challenge — diagnostic app using DCNN, SVM and ANN models", org: "University of Indonesia" },
 ];
 
 export const certifications = [
