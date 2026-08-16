@@ -190,16 +190,19 @@ section > p { color: var(--body); }
 .company-logo-wrap {
   display: grid;
   place-items: center;
-  height: 112px;
-  padding: 14px 18px;
+  height: 124px;
+  padding: 16px 18px;
   background: #fff;
   border-bottom: 1px solid var(--line-soft);
+  overflow: hidden;
 }
 
 .company-logo-wrap img {
   display: block;
-  width: 100%;
-  height: 100%;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 92px;
   object-fit: contain;
 }
 
