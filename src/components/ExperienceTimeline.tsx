@@ -36,9 +36,13 @@ export default function ExperienceTimeline({ experiences }: Props) {
                 </button>
                 {isOpen && (
                   <aside className="company-card" role="status">
-                    <span className="company-mark" aria-hidden="true">{experience.mark}</span>
-                    <strong>{experience.company}</strong>
-                    <p>{experience.about}</p>
+                    <div className="company-logo-wrap">
+                      <img src={experience.logo} alt={experience.logoAlt} />
+                    </div>
+                    <div className="company-card-copy">
+                      <strong>{experience.company}</strong>
+                      <p>{experience.about}</p>
+                    </div>
                   </aside>
                 )}
               </div>

@@ -9,7 +9,7 @@ export default function OlderProjects({ projects }: Props) {
   return (
     <div className="older-projects">
       <button className="text-button" type="button" onClick={() => setOpen(!open)} aria-expanded={open} aria-controls="older-project-list">
-        {open ? "− hide the student projects" : `+ ${projects.length} older student projects`}
+        {open ? "− hide the student projects" : "+ four older student projects"}
       </button>
       {open && (
         <div className="older-project-list" id="older-project-list">

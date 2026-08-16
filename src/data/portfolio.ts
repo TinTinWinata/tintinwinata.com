@@ -4,7 +4,8 @@ export type Experience = {
   dates: string;
   url: string;
   about: string;
-  mark: string;
+  logo: string;
+  logoAlt: string;
   prose: string;
 };
 
@@ -31,7 +32,8 @@ export const experiences: Experience[] = [
     dates: "2025 — now",
     url: "https://cynapse.ai/",
     about: "A video-intelligence company in Singapore whose platform runs across organisations in Asia and the US.",
-    mark: "cy",
+    logo: "/company/cynapse.jpg",
+    logoAlt: "cynapse.ai logo",
     prose:
       "I built a distributed video pipeline serving 2,000 CCTV cameras at 16,000 frames per second on Kubernetes, with RabbitMQ retry and backpressure handling. I then joined the CEO-led AI Lab, where I work on natural-language video search over 75M detections and an on-call agent that reads logs, files tickets and opens pull requests with fixes.",
   },
@@ -41,7 +43,8 @@ export const experiences: Experience[] = [
     dates: "2024 — 2025",
     url: "https://www.linkedin.com/company/the-software-practice-pte-ltd/",
     about: "A Singapore software consultancy delivering products for government agencies, major banks and airports.",
-    mark: "tsp",
+    logo: "/company/tsp.jpg",
+    logoAlt: "The Software Practice logo",
     prose:
       "Built an administration portal for the Singapore Government on a pipeline doing 2+ production deploys a day, with test suites at 85% coverage using Moq and the AAA pattern, and Selenium automation that cut manual QA time by 4x.",
   },
@@ -51,7 +54,8 @@ export const experiences: Experience[] = [
     dates: "2023 — 2025",
     url: "https://www.linkedin.com/company/questlabsid/",
     about: "An Indonesian software studio building web and mobile products for local businesses.",
-    mark: "ql",
+    logo: "/company/questlabs.jpg",
+    logoAlt: "The Questlabs ID logo",
     prose:
       "Deployed an online store for automotive parts that reached 100 product sales a month on 10+ custom PHP plugins, and a POS system for an antivirus distributor that replaced manual processes and pushed gross sales past IDR 200M a month.",
   },
@@ -61,7 +65,8 @@ export const experiences: Experience[] = [
     dates: "2024",
     url: "https://www.freelancer.com/",
     about: "Independent client work for teams in Uzbekistan, India and Indonesia.",
-    mark: "fr",
+    logo: "/company/freelancer.png",
+    logoAlt: "Freelancer.com logo",
     prose:
       "Shipped three responsive applications in six months. One production-management platform handles 16,000+ entries and generates reports 96% faster than the process it replaced.",
   },
@@ -71,7 +76,8 @@ export const experiences: Experience[] = [
     dates: "2022 — 2024",
     url: "https://binus.ac.id/",
     about: "BINUS is one of Indonesia’s largest private universities; BCA’s PPTI programme trains future engineers.",
-    mark: "bi",
+    logo: "/company/binus.jpg",
+    logoAlt: "BINUS University logo",
     prose:
       "Taught up to ten classes a semester across databases, frontend, backend, OOP, data structures, deep learning and Android, then led academic instructor research and delivered hard-skills training to 100+ instructors.",
   },
