@@ -29,7 +29,7 @@ export type Article = {
 export const experiences: Experience[] = [
   {
     company: "cynapse.ai",
-    role: "Software Engineer → Senior Software Engineer",
+    role: "Software Engineer · Senior Software Engineer",
     dates: "2025 — now",
     url: "https://cynapse.ai/",
     about: "A video-intelligence company in Singapore whose platform runs across organisations in Asia and the US.",
