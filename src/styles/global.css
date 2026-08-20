@@ -437,7 +437,7 @@ footer p { margin: 0; color: var(--muted); font-size: 14px; }
 .email-button:hover { background: var(--accent-dark); }
 
 @media (max-width: 680px) {
-  .reading-column { width: min(100% - 36px, 560px); padding: 42px 0 54px; }
+  .reading-column { width: min(100% - 48px, 560px); padding: 42px 0 54px; }
   .intro { margin-bottom: 48px; }
   .eyebrow { font-size: 10px; letter-spacing: .11em; }
   .lede { font-size: 18px; }
