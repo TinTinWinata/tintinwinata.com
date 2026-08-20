@@ -1,0 +1,326 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import QuantizationCharts from "../../components/QuantizationCharts";
+
+const title = "Does Binary Quantization Still Hold at 75 Million Vectors? — Justine Winata";
+const description = "A MongoDB Vector Search benchmark measuring binary and scalar quantization recall against exact nearest-neighbour ground truth across 75 million real-world embeddings.";
+const results = [
+  { quant: "binary", nc: 360, mean: ".7094", median: ".7222", p5: ".4028", latency: "1,165 ms" },
+  { quant: "binary", nc: 720, mean: ".7940", median: ".8194", p5: ".4861", latency: "649 ms" },
+  { quant: "binary", nc: 1080, mean: ".8365", median: ".8611", p5: ".5556", latency: "608 ms" },
+  { quant: "binary", nc: 1440, mean: ".8596", median: ".8889", p5: ".5972", latency: "586 ms" },
+  { quant: "binary", nc: 4000, mean: ".9245", median: ".9583", p5: ".7083", latency: "3,509 ms" },
+  { quant: "binary", nc: 10000, mean: ".9578", median: ".9861", p5: ".8194", latency: "7,048 ms" },
+  { quant: "scalar", nc: 360, mean: ".7231", median: ".8472", p5: ".1944", latency: "3,142 ms" },
+  { quant: "scalar", nc: 720, mean: ".7261", median: ".8472", p5: ".1944", latency: "1,940 ms" },
+  { quant: "scalar", nc: 1080, mean: ".7274", median: ".8542", p5: ".1944", latency: "1,868 ms" },
+  { quant: "scalar", nc: 1440, mean: ".7300", median: ".8611", p5: ".1944", latency: "1,830 ms" },
+  { quant: "scalar", nc: 4000, mean: ".7309", median: ".8611", p5: ".1944", latency: "12,040 ms" },
+  { quant: "scalar", nc: 10000, mean: ".7312", median: ".8611", p5: ".1944", latency: "27,582 ms" },
+];
+---
+
+<Layout title={title} description={description} socialImage="/writing/binary-quantization-75m.png" type="article">
+  <main class="article-page">
+    <article>
+      <header class="article-hero">
+        <a class="article-back" href="/">← Justine Winata</a>
+        <p class="eyebrow">Vector search · field benchmark · August 2026</p>
+        <h1>Does binary quantization still hold at 75 million vectors?</h1>
+        <p class="article-deck">MongoDB’s public benchmark reaches 15.3 million vectors. I wanted to know what happens much further out—when an approximate search over 75 million real-world embeddings can rescore at most 10,000 candidates.</p>
+        <div class="article-meta" aria-label="Benchmark summary">
+          <div><span>corpus</span><strong>75,000,649</strong></div>
+          <div><span>dimensions</span><strong>512</strong></div>
+          <div><span>queries</span><strong>300</strong></div>
+          <div><span>metric</span><strong>recall@72</strong></div>
+        </div>
+      </header>
+
+      <div class="article-prose">
+        <aside class="headline-result">
+          <div><strong>95.8%</strong><span>binary recall · 10,000 candidates</span></div>
+          <p><strong>The candidate ceiling did not cause binary recall to collapse on this corpus.</strong> Binary kept improving across the entire measured range. Scalar plateaued near 73%, and additional search effort barely moved it.</p>
+        </aside>
+
+        <section id="gap">
+          <p class="section-label">01 · The benchmark gap</p>
+          <h2>Fifteen million vectors does not answer the 75-million-vector question</h2>
+          <p>MongoDB’s large public benchmark uses 15.3 million, 2048-dimensional embeddings and reports 90–95% recall with quantization. That is useful evidence, but it is a different regime from 75 million vectors at 512 dimensions.</p>
+          <p>The part that bothered me was the fixed search budget. MongoDB Vector Search caps <code>numCandidates</code> at 10,000. The corpus can keep growing; the pool eligible for exact rescoring cannot. If true neighbours stop reaching that pool, no reranking stage can recover them.</p>
+          <p class="question-callout">At what scale does a fixed 10,000-candidate budget stop being enough—and had 75 million vectors already crossed that line?</p>
+        </section>
+
+        <section id="mechanism">
+          <p class="section-label">02 · Mechanism</p>
+          <h2>Binary and scalar fail in different places</h2>
+          <p>Both indexes use compressed values during approximate nearest-neighbour search. The difference comes after retrieval.</p>
+          <div class="search-flow" aria-label="Comparison of binary and scalar search paths">
+            <div>
+              <span>binary</span>
+              <ol><li>1-bit ANN</li><li>candidate pool</li><li>float32 rescore</li><li>top-k</li></ol>
+            </div>
+            <div>
+              <span>scalar</span>
+              <ol><li>int8 ANN</li><li>int8 ranking</li><li>top-k</li></ol>
+            </div>
+          </div>
+          <p>Binary’s compressed pass only has to retrieve a true neighbour into the candidate pool. Full-precision vectors then repair its ordering. Scalar ranks on the approximation, so increasing the pool cannot necessarily buy back information already lost in that comparison.</p>
+        </section>
+
+        <section id="method">
+          <p class="section-label">03 · Method</p>
+          <h2>Exact ground truth without 300 exhaustive database scans</h2>
+          <p>The benchmark uses 75 million real-world visual embeddings, anonymized here to keep the experiment independent from any product or organisation. I selected 300 fixed query vectors and stripped each query’s self-match from both the exact and approximate result sets.</p>
+          <pre><code>recall@k = | top-k(approximate) ∩ top-k(exact) | / k</code></pre>
+          <p>Running an exact database search once per query was impractical at this scale. Instead, the corpus was streamed once in chunks. Every chunk was scored against all queries with exact float32 cosine similarity, while each query maintained a running top-200 pool.</p>
+          <ul>
+            <li><strong>Arms:</strong> binary and scalar quantization.</li>
+            <li><strong>Candidate sweep:</strong> 360, 720, 1080, 1440, 4000, and 10000.</li>
+            <li><strong>Primary metric:</strong> document-ID overlap at k=72—not the score reported by the index.</li>
+            <li><strong>Tail metrics:</strong> median, p5, p95, and per-query perfect recall.</li>
+            <li><strong>Latency:</strong> median query time from a warm sweep on this benchmark host.</li>
+          </ul>
+          <p>The exact pool was validated independently by rereading stored vectors and recomputing their cosine values. Agreement was within float32 precision.</p>
+        </section>
+      </div>
+
+      <section class="article-results" id="results">
+        <div class="article-prose results-intro">
+          <p class="section-label">04 · Results</p>
+          <h2>More candidates rescue binary. They barely affect scalar.</h2>
+          <p>The controls below are linked across every chart. Select one candidate setting and the recall, latency, and tail readouts update together.</p>
+        </div>
+        <QuantizationCharts client:load />
+      </section>
+
+      <div class="article-prose">
+        <section id="reading">
+          <p class="section-label">05 · Reading the result</p>
+          <h2>The mean is only half the finding</h2>
+          <p>At 360 candidates, scalar begins 1.4 recall points ahead. By 720, binary has crossed it. At 10,000 candidates, binary reaches 95.8% mean recall while scalar remains at 73.1%.</p>
+          <p>The tail is more revealing. Binary’s fifth percentile rises from 40.3% to 81.9%. Scalar’s fifth percentile is exactly 19.4% at every setting. The least successful scalar queries recover the same small fraction whether the search receives 360 candidates or 10,000.</p>
+          <blockquote>A floor that more search cannot lift points to information lost during ranking, not neighbours that merely need more exploration.</blockquote>
+        </section>
+
+        <section id="scores">
+          <p class="section-label">06 · Score fidelity</p>
+          <h2>A failed correctness check explained the whole curve</h2>
+          <p>I compared the score returned for a document with the independently computed exact score for that same document. The result split sharply by quantization.</p>
+          <div class="score-comparison">
+            <div><span>binary · mean absolute error</span><strong>7.1 × 10<sup>−8</sup></strong><p>Float32 precision. Surviving candidates were reordered using their full-fidelity vectors.</p></div>
+            <div><span>scalar · mean absolute error</span><strong>3.1 × 10<sup>−3</sup></strong><p>The returned ordering still reflected the int8 approximation.</p></div>
+          </div>
+          <p>This is why the candidate lever behaves asymmetrically. Each extra binary candidate is another chance to admit a true neighbour before exact rescoring. Scalar gives the same lossy comparison more work.</p>
+        </section>
+
+        <section id="ceiling">
+          <p class="section-label">07 · The 10,000-candidate ceiling</p>
+          <h2>Can binary still be trusted?</h2>
+          <p>For this corpus and this query set: yes, with a measured operating point. The recall curve is still rising at 10,000, and its tail improves alongside its mean. There is no sign of a catastrophic ceiling at 75 million vectors.</p>
+          <p>That is deliberately narrower than saying binary recall “survives scale.” Corpus geometry can dominate corpus size. Duplicate density, embedding dimensionality, filters, result width, and the number of index segments all change how difficult it is for a 1-bit graph to retrieve the right pool.</p>
+          <div class="decision-grid">
+            <div><strong>86.0%</strong><span>recall at 1,440 candidates</span><p>The lower-latency point: 586 ms median in this run.</p></div>
+            <div><strong>92.4%</strong><span>recall at 4,000 candidates</span><p>A middle point at 3.5 seconds median.</p></div>
+            <div><strong>95.8%</strong><span>recall at 10,000 candidates</span><p>The accuracy point—and the final available candidate setting.</p></div>
+          </div>
+        </section>
+
+        <section id="storage">
+          <p class="section-label">08 · Resource tradeoff</p>
+          <h2>Binary quantization buys search memory, not equivalent disk savings</h2>
+          <p>The compact 1-bit representation reduces the vector working set used by approximate search. But automated binary quantization retains full-precision vectors for rescoring. Storage planning must account for both representations and the graph rather than assuming a 32× smaller index on disk.</p>
+        </section>
+
+        <section id="limitations">
+          <p class="section-label">09 · Limitations</p>
+          <h2>What this benchmark does not prove</h2>
+          <ul>
+            <li><strong>No full-scale unquantized control.</strong> Recall here combines approximation and quantization effects.</li>
+            <li><strong>One corpus is not a scaling law.</strong> The result does not isolate corpus size from embedding distribution.</li>
+            <li><strong>No query-time filters.</strong> Selective filters can materially change graph exploration.</li>
+            <li><strong>Latency is environment-specific.</strong> Index residency and concurrent workloads can outweigh the effect of k.</li>
+            <li><strong>Geometric recall is not relevance.</strong> This measures nearest-neighbour fidelity, not whether a human prefers the result.</li>
+          </ul>
+          <p>The strongest follow-up is a controlled scale curve: deterministic nested subsets from the same corpus, the same queries, and exact ground truth recomputed within each subset. That would isolate corpus size instead of comparing two different distributions.</p>
+        </section>
+
+        <section id="recommendations">
+          <p class="section-label">10 · Recommendations</p>
+          <h2>Benchmark the ceiling, not an extrapolation</h2>
+          <ol class="recommendations">
+            <li><strong>Measure the real result width.</strong> Recall at k=10, k=24, and k=100 are different problems.</li>
+            <li><strong>Sweep all the way to 10,000.</strong> If the binary curve is still climbing, the ceiling is part of the product decision.</li>
+            <li><strong>Read p5 alongside the mean.</strong> A strong average can hide a persistent population of failed queries.</li>
+            <li><strong>Use exact document overlap.</strong> Do not let quantized score differences contaminate the recall metric.</li>
+            <li><strong>Repeat with real filters and data geometry.</strong> Vendor benchmarks are starting points, not capacity plans.</li>
+          </ol>
+        </section>
+
+        <details class="full-results">
+          <summary>Full aggregate results</summary>
+          <div class="results-table-wrap">
+            <table>
+              <thead><tr><th>quant</th><th>nc</th><th>mean</th><th>median</th><th>p5</th><th>latency</th></tr></thead>
+              <tbody>{results.map((result) => <tr><td>{result.quant}</td><td>{result.nc}</td><td>{result.mean}</td><td>{result.median}</td><td>{result.p5}</td><td>{result.latency}</td></tr>)}</tbody>
+            </table>
+          </div>
+        </details>
+
+        <section class="references" aria-labelledby="references-title">
+          <p class="section-label">References</p>
+          <h2 id="references-title">Primary sources</h2>
+          <ol>
+            <li><a href="https://www.mongodb.com/docs/vector-search/benchmark/results/">MongoDB Vector Search Benchmark Results</a></li>
+            <li><a href="https://www.mongodb.com/docs/vector-search/benchmark/overview/">MongoDB Vector Search Benchmark Overview</a></li>
+            <li><a href="https://www.mongodb.com/docs/search/query/operators-collectors/vectorSearch/">MongoDB <code>vectorSearch</code> operator reference</a></li>
+            <li><a href="https://www.mongodb.com/docs/vector-search/about/vector-quantization/">MongoDB Vector Quantization</a></li>
+          </ol>
+        </section>
+
+        <footer class="article-footer">
+          <p>Written by <a href="/">Justine Winata</a>, a senior software engineer working on AI infrastructure and distributed systems.</p>
+          <a class="email-button" href="mailto:tintin6892@gmail.com">discuss this benchmark</a>
+        </footer>
+      </div>
+    </article>
+  </main>
+</Layout>
+
+<style is:global>
+  .article-page { overflow: hidden; }
+  .article-page article { padding: 0 0 88px; }
+  .article-hero,
+  .article-prose { width: min(760px, calc(100% - 48px)); margin: 0 auto; }
+  .article-hero { padding: 54px 0 0; }
+  .article-back { display: inline-block; margin-bottom: 42px; color: var(--muted); font: 12px/1.5 var(--mono); text-decoration: none; }
+  .article-back:hover { color: var(--accent); }
+  .article-hero h1 { max-width: 730px; margin: 12px 0 18px; font-size: clamp(42px, 7.5vw, 68px); font-weight: 600; line-height: 1.02; letter-spacing: -.045em; }
+  .article-deck { max-width: 700px; margin: 0; color: var(--body); font-size: 21px; line-height: 1.55; }
+  .article-meta { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 34px; border: 1px solid var(--line); border-width: 1px 0; }
+  .article-meta div { display: grid; gap: 4px; padding: 15px 13px; border-right: 1px solid var(--line-soft); }
+  .article-meta div:first-child { padding-left: 0; }
+  .article-meta div:last-child { border-right: 0; }
+  .article-meta span,
+  .section-label,
+  .headline-result span,
+  .score-comparison span,
+  .decision-grid span { color: var(--muted); font: 10.5px/1.5 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+  .article-meta strong { font: 500 14px/1.5 var(--mono); }
+  .article-prose { color: var(--body); }
+  .article-prose section { margin-top: 74px; }
+  .article-prose h2,
+  .results-intro h2 { margin: 7px 0 20px; color: var(--ink); font-size: clamp(28px, 4vw, 38px); line-height: 1.16; letter-spacing: -.025em; }
+  .article-prose p { margin: 18px 0; }
+  .article-prose code { font: .84em/1.5 var(--mono); }
+  .article-prose pre { margin: 25px 0; padding: 18px 20px; overflow-x: auto; background: #f3f0ea; border: 1px solid var(--line-soft); border-radius: 4px; color: var(--ink); }
+  .article-prose ul { padding-left: 22px; }
+  .article-prose li { margin: 7px 0; }
+  .article-prose blockquote { margin: 30px 0; padding: 2px 0 2px 24px; border-left: 2px solid var(--accent); color: var(--ink); font-size: 23px; line-height: 1.45; }
+  .headline-result { display: grid; grid-template-columns: 240px 1fr; gap: 34px; align-items: center; margin-top: 54px; padding: 26px 0; border: 1px solid var(--line); border-width: 1px 0; }
+  .headline-result > div { display: grid; }
+  .headline-result > div strong { color: var(--accent); font: 500 clamp(48px, 7vw, 66px)/1 var(--mono); letter-spacing: -.06em; }
+  .headline-result p { margin: 0; }
+  .question-callout { padding: 20px 24px; background: #f5f1ea; border-left: 2px solid var(--accent); color: var(--ink); font-size: 21px; }
+  .search-flow { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 28px 0; }
+  .search-flow > div { padding: 20px; border: 1px solid var(--line); border-radius: 5px; }
+  .search-flow > div > span { color: var(--accent); font: 500 12px/1.5 var(--mono); text-transform: uppercase; }
+  .search-flow ol { display: flex; flex-wrap: wrap; gap: 7px; margin: 14px 0 0; padding: 0; list-style: none; counter-reset: flow; }
+  .search-flow li { margin: 0; padding: 6px 9px; background: #f3f0ea; border-radius: 3px; font: 11px/1.4 var(--mono); }
+  .search-flow li + li::before { content: "→"; margin-right: 9px; color: var(--muted); }
+  .article-results { margin-top: 76px; }
+  .results-intro { margin-bottom: 28px; }
+  .chart-suite { width: min(1100px, calc(100% - 48px)); margin: 0 auto; }
+  .candidate-control { display: flex; justify-content: space-between; gap: 20px; align-items: center; padding: 12px 14px; background: #f3f0ea; border: 1px solid var(--line-soft); border-radius: 5px; }
+  .candidate-control > span { font: 11px/1.5 var(--mono); color: var(--muted); }
+  .candidate-control > div { display: flex; flex-wrap: wrap; gap: 6px; }
+  .candidate-control button { padding: 7px 10px; border: 1px solid transparent; border-radius: 3px; background: transparent; color: var(--body); font: 11px/1.2 var(--mono); cursor: pointer; }
+  .candidate-control button:hover { border-color: var(--accent-soft); }
+  .candidate-control button.is-active { background: var(--ink); color: var(--paper); }
+  .selected-result { display: grid; grid-template-columns: 165px 165px 1fr; gap: 24px; align-items: center; padding: 26px 0 18px; }
+  .selected-result > div { display: grid; }
+  .selected-result span { color: var(--muted); font: 10px/1.4 var(--mono); text-transform: uppercase; letter-spacing: .08em; }
+  .selected-result strong { font-size: 32px; line-height: 1.15; }
+  .selected-result > div:first-child strong { color: var(--accent); }
+  .selected-result small { color: var(--muted); font: 11px/1.5 var(--mono); }
+  .selected-result p { margin: 0; color: var(--body); font-size: 16px; line-height: 1.55; }
+  .selected-result p strong { color: var(--ink); font: 600 inherit; }
+  .chart-card { margin: 22px 0 54px; padding: 24px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+  .chart-card figcaption { display: grid; gap: 4px; margin-bottom: 16px; }
+  .chart-card figcaption span { color: var(--accent); font: 10px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+  .chart-card figcaption strong { font-size: 22px; line-height: 1.3; }
+  .chart-card figcaption small { max-width: 680px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+  .chart-scroll { overflow-x: auto; }
+  .chart-scroll svg { display: block; width: 100%; min-width: 620px; height: auto; }
+  .chart-grid { stroke: #ebe7df; stroke-width: 1; }
+  .chart-grid-vertical { stroke-dasharray: 3 4; }
+  .chart-axis-label,
+  .chart-x-title,
+  .chart-point-label { fill: #847e75; font-family: var(--mono); font-size: 10px; }
+  .chart-point-label { font-size: 8.5px; }
+  .chart-line { fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .chart-line-binary { stroke: var(--accent); }
+  .chart-line-scalar { stroke: #4d5963; stroke-dasharray: 6 5; }
+  .chart-dot { stroke-width: 2; transition: r .15s ease, stroke-width .15s ease; }
+  .chart-dot-binary { fill: #fff; stroke: var(--accent); }
+  .chart-dot-scalar { fill: #fff; stroke: #4d5963; }
+  .chart-dot.is-selected { fill: var(--paper); stroke-width: 3.5; }
+  .chart-selection { stroke: #c7c0b6; stroke-width: 1; stroke-dasharray: 3 5; }
+  .chart-band { stroke: none; opacity: .1; }
+  .chart-band-binary { fill: var(--accent); }
+  .chart-band-scalar { fill: #4d5963; }
+  .chart-legend,
+  .tail-readout { display: flex; flex-wrap: wrap; gap: 8px 20px; padding-top: 12px; border-top: 1px solid var(--line-soft); color: var(--muted); font: 10px/1.5 var(--mono); }
+  .legend-binary::before,
+  .legend-scalar::before { content: ""; display: inline-block; width: 16px; height: 2px; margin: 0 7px 3px 0; background: var(--accent); }
+  .legend-scalar::before { background: repeating-linear-gradient(to right, #4d5963 0 5px, transparent 5px 8px); }
+  .tail-readout strong { color: var(--ink); }
+  .score-comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 28px 0; }
+  .score-comparison > div { padding: 22px; border: 1px solid var(--line); border-radius: 5px; }
+  .score-comparison strong { display: block; margin: 9px 0; color: var(--ink); font: 500 27px/1.2 var(--mono); letter-spacing: -.03em; }
+  .score-comparison > div:first-child strong { color: var(--accent); }
+  .score-comparison p { margin: 0; font-size: 15px; }
+  .decision-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 30px 0; }
+  .decision-grid > div { padding: 19px; border-top: 2px solid var(--line); background: #f7f4ef; }
+  .decision-grid > div:last-child { border-top-color: var(--accent); }
+  .decision-grid strong { display: block; color: var(--ink); font: 500 30px/1.2 var(--mono); }
+  .decision-grid p { margin: 10px 0 0; font-size: 14px; line-height: 1.5; }
+  .recommendations { padding: 0; list-style: none; counter-reset: recommendations; }
+  .recommendations li { position: relative; margin: 0; padding: 15px 0 15px 48px; border-bottom: 1px solid var(--line-soft); counter-increment: recommendations; }
+  .recommendations li::before { content: "0" counter(recommendations); position: absolute; left: 0; top: 17px; color: var(--accent); font: 11px/1.5 var(--mono); }
+  .full-results { margin-top: 74px; border: 1px solid var(--line); border-radius: 5px; }
+  .full-results summary { padding: 16px 18px; cursor: pointer; color: var(--ink); font: 12px/1.5 var(--mono); }
+  .results-table-wrap { overflow-x: auto; border-top: 1px solid var(--line); }
+  .results-table-wrap table { width: 100%; border-collapse: collapse; font: 11px/1.5 var(--mono); }
+  .results-table-wrap th,
+  .results-table-wrap td { padding: 9px 12px; border-bottom: 1px solid var(--line-soft); text-align: right; white-space: nowrap; }
+  .results-table-wrap th:first-child,
+  .results-table-wrap td:first-child { text-align: left; }
+  .results-table-wrap th { color: var(--muted); font-weight: 400; }
+  .references ol { padding-left: 22px; }
+  .references a { color: var(--accent-dark); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  .article-footer { align-items: center; margin-top: 74px; }
+  .article-footer p { max-width: 500px; margin: 0; }
+
+  @media (max-width: 720px) {
+    .article-page article { padding-bottom: 54px; }
+    .article-hero { padding-top: 34px; }
+    .article-back { margin-bottom: 32px; }
+    .article-hero h1 { font-size: clamp(38px, 12vw, 53px); }
+    .article-deck { font-size: 18px; }
+    .article-meta { grid-template-columns: 1fr 1fr; }
+    .article-meta div:nth-child(2) { border-right: 0; }
+    .article-meta div:first-child,
+    .article-meta div:nth-child(3) { padding-left: 0; }
+    .article-meta div:nth-child(-n+2) { border-bottom: 1px solid var(--line-soft); }
+    .headline-result { grid-template-columns: 1fr; gap: 18px; }
+    .search-flow,
+    .score-comparison,
+    .decision-grid { grid-template-columns: 1fr; }
+    .candidate-control { align-items: flex-start; flex-direction: column; }
+    .selected-result { grid-template-columns: 1fr 1fr; }
+    .selected-result p { grid-column: 1 / -1; }
+    .chart-card { margin-bottom: 36px; padding: 18px 14px; }
+    .chart-suite { width: min(100% - 24px, 1100px); }
+    .article-prose section { margin-top: 62px; }
+  }
+</style>
