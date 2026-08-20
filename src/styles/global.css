@@ -338,6 +338,14 @@ section > p { color: var(--body); }
 
 .article-list span { line-height: 1.5; }
 
+.subsection-label {
+  margin: 26px 0 4px;
+  color: var(--muted);
+  font: 400 12px/1.4 var(--mono);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
 .award-list { border-top: 1px solid var(--line-soft); }
 
 .award-list article {

@@ -29,14 +29,14 @@ export type Article = {
 export const experiences: Experience[] = [
   {
     company: "cynapse.ai",
-    role: "Software Engineer · Senior Software Engineer",
+    role: "Senior Software Engineer · promoted from Software Engineer",
     dates: "2025 — now",
     url: "https://cynapse.ai/",
     about: "A video-intelligence company in Singapore whose platform runs across organisations in Asia and the US.",
     logo: "/company/cynapse-wordmark.png",
     logoAlt: "cynapse.ai logo",
     prose:
-      "I built a distributed video pipeline serving 2,000 CCTV cameras at 16,000 frames per second on Kubernetes, with RabbitMQ retry and backpressure handling. I then joined the CEO-led AI Lab, where I work on natural-language video search over 75M detections and an on-call agent that reads logs, files tickets and opens pull requests with fixes.",
+      "Built a distributed video pipeline ingesting 16,000 frames per second from 2,000 CCTV cameras, with RabbitMQ retry and backpressure mechanisms for downstream failures. Now building natural-language video search over 75M detections and an incident-response agent that analyzes logs, creates Jira tickets and opens pull requests with proposed fixes.",
   },
   {
     company: "The Software Practice",
@@ -47,11 +47,11 @@ export const experiences: Experience[] = [
     logo: "/company/tsp-wordmark.png",
     logoAlt: "The Software Practice logo",
     prose:
-      "Built an administration portal for the Singapore Government on a pipeline doing 2+ production deploys a day, with test suites at 85% coverage using Moq and the AAA pattern, and Selenium automation that cut manual QA time by 4x.",
+      "Reduced manual QA time by 75% by building Selenium automation for a Singapore Government administration portal. Maintained 85% automated test coverage and supported a delivery process shipping more than two production deployments per day.",
   },
   {
     company: "The Questlabs ID",
-    role: "Software Engineer · part time",
+    role: "Software Engineer · part-time",
     dates: "2023 — 2025",
     url: "https://www.linkedin.com/company/questlabsid/",
     about: "An Indonesian software studio building web and mobile products for local businesses.",
@@ -59,18 +59,18 @@ export const experiences: Experience[] = [
     logoAlt: "The Questlabs ID logo",
     logoText: "The Questlabs ID",
     prose:
-      "Deployed an online store for automotive parts that reached 100 product sales a month on 10+ custom PHP plugins, and a POS system for an antivirus distributor that replaced manual processes and pushed gross sales past IDR 200M a month.",
+      "Built an automotive e-commerce system processing 100 product sales a month and a POS platform used to process IDR 200M+ in monthly gross sales, replacing manual workflows for an antivirus distributor.",
   },
   {
     company: "freelancer.com",
-    role: "Software Engineer · part time",
+    role: "Software Engineer · part-time",
     dates: "2024",
     url: "https://www.freelancer.com/",
     about: "Independent client work for teams in Uzbekistan, India and Indonesia.",
     logo: "/company/freelancer-wordmark.png",
     logoAlt: "Freelancer.com logo",
     prose:
-      "Shipped three responsive applications in six months. One production-management platform handles 16,000+ entries and generates reports 96% faster than the process it replaced.",
+      "Cut report-generation time by 96% for a production-management platform containing 16,000+ records, one of three responsive client applications delivered in six months.",
   },
   {
     company: "BINUS University & BCA",
@@ -81,7 +81,7 @@ export const experiences: Experience[] = [
     logo: "/company/binus.jpg",
     logoAlt: "BINUS University logo",
     prose:
-      "Taught up to ten classes a semester across databases, frontend, backend, OOP, data structures, deep learning and Android, then led academic instructor research and delivered hard-skills training to 100+ instructors.",
+      "Trained 100+ instructors, led academic instructor research and taught up to ten classes a semester across databases, frontend, backend, OOP, data structures, deep learning and Android.",
   },
 ];
 
@@ -89,21 +89,23 @@ export const projects: Project[] = [
   {
     name: "Cakra Motor HRIS",
     dates: "2024 — 2025",
-    prose: "A web and React Native product for managing employee structure, with Google Maps integration so attendance is tied to a real location.",
+    prose: "Built a web and React Native HRIS for 100+ employees across 11 locations. Designed a computer-vision attendance flow using face detection, combined with Google Maps location validation.",
     image: "/projects/cakra-hris.jpg",
     imageAlt: "Cakra Motor HRIS organisation management interface",
+    site: "computer-vision write-up",
+    siteUrl: "https://medium.com/@tintinwinata/how-i-created-a-web-app-with-real-time-hand-recognition-4a9d509184e1",
   },
   {
     name: "KIMS POS Activation",
     dates: "2023 — 2024",
-    prose: "An e-commerce and point-of-sale activation platform for antivirus products. Administrators track reseller purchases, issue gift cards and read sales analytics.",
+    prose: "Built an e-commerce and point-of-sale activation platform used to process IDR 200M+ in monthly gross sales. It replaced manual reseller purchasing, gift-card and sales-reporting workflows.",
     image: "/projects/kims.png",
     imageAlt: "KIMS sales analytics dashboard",
   },
   {
     name: "Cakra Motor E-Commerce",
     dates: "2023 — 2024",
-    prose: "A store for motor oil and accessories, built with 10+ custom plugins and connected to WhatsApp, Xendit and Google APIs.",
+    prose: "Built an automotive store processing 100 product sales a month, with 10+ custom PHP plugins and integrations across WhatsApp, Xendit and Google APIs.",
     image: "/projects/cakra-commerce.png",
     imageAlt: "Cakra Motor e-commerce homepage",
     site: "cakramotor11.com",
@@ -120,10 +122,8 @@ export const earlierProjects = [
 
 export const articles: Article[] = [
   { date: "Jun 2026", title: "ClickHouse vs MongoDB: When Milliseconds Become Minutes", url: "https://medium.com/@tintinwinata/clickhouse-vs-mongodb-when-milliseconds-become-minutes-3ea847eba015" },
-  { date: "Apr 2026", title: "Microsoft Agent Framework v1.0: Is It Worth the Hype?", url: "https://medium.com/@tintinwinata/microsoft-agent-framework-v1-0-is-it-worth-the-hype-8f5d06c54eb0" },
   { date: "Jan 2026", title: "Built an AI That Auto-Creates JIRA Tickets From Production Errors—and Won", url: "https://medium.com/@tintinwinata/built-an-ai-that-auto-creates-jira-tickets-from-production-errors-and-won-1st-place-doing-it-79b4d83feb88" },
   { date: "Dec 2025", title: "Event-Driven System: Real-Time Entity Linking With Apache Flink", url: "https://medium.com/@tintinwinata/event-driven-system-real-time-entity-linking-with-apache-flink-c52b3e198ca3" },
-  { date: "Nov 2025", title: "How Your System Talks Behind the Scenes With Sockets", url: "https://medium.com/@tintinwinata/how-your-system-talks-behind-the-scenes-with-sockets-10a1447ced0a" },
   { date: "Oct 2025", title: "Solving Bitbucket’s AI Review Gap for 98% Less", url: "https://medium.com/@tintinwinata/solved-bitbucket-ai-review-gap-and-it-cost-98-less-than-enterprise-tools-ee77c6940d81" },
 ];
 

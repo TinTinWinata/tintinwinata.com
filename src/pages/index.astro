@@ -1,11 +1,10 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import ExperienceTimeline from "../components/ExperienceTimeline";
-import OlderProjects from "../components/OlderProjects";
-import { articles, awards, certifications, earlierProjects, experiences, projects } from "../data/portfolio";
+import { articles, awards, certifications, experiences, projects } from "../data/portfolio";
 
-const title = "Justine Winata — AI & Fullstack Engineer";
-const description = "Singapore-based engineer building production AI systems, video infrastructure and useful software.";
+const title = "Justine Winata — Senior Software Engineer, AI Infrastructure";
+const description = "Singapore-based senior software engineer building production AI infrastructure, distributed video systems and developer tools.";
 ---
 
 <Layout title={title} description={description}>
@@ -13,9 +12,9 @@ const description = "Singapore-based engineer building production AI systems, vi
     <div class="reading-column">
       <header class="intro">
         <div>
-          <p class="eyebrow">AI & Fullstack Engineer · Singapore</p>
+          <p class="eyebrow">Senior Software Engineer · AI Infrastructure · Singapore</p>
           <h1>Justine Winata</h1>
-          <p class="lede">I’m an engineer in Singapore who builds AI systems that have to survive contact with production. Mostly that means video: pipelines that don’t drop frames, retrieval that answers in seconds, and agents that do something useful when they’re right and fail quietly when they’re not.</p>
+          <p class="lede">I build production AI and distributed systems. At cynapse.ai, I built a video pipeline ingesting 16,000 frames per second from 2,000 cameras. I now work on natural-language search over 75 million detections and agents that investigate production incidents and propose fixes.</p>
           <nav class="contact-links" aria-label="Contact and profiles">
             <a href="mailto:tintin6892@gmail.com">email</a>
             <a href="https://github.com/TinTinWinata">github</a>
@@ -32,7 +31,7 @@ const description = "Singapore-based engineer building production AI systems, vi
       </section>
 
       <section aria-labelledby="projects-heading">
-        <h2 id="projects-heading">Things I’ve built</h2>
+        <h2 id="projects-heading">Selected engineering work</h2>
         <div class="project-list">
           {projects.map((project) => (
             <article class="project">
@@ -50,12 +49,11 @@ const description = "Singapore-based engineer building production AI systems, vi
             </article>
           ))}
         </div>
-        <OlderProjects projects={earlierProjects} client:idle />
       </section>
 
       <section aria-labelledby="writing-heading">
-        <h2 id="writing-heading">Writing</h2>
-        <p>I write up what I learn at work on <a class="inline-link" href="https://medium.com/@tintinwinata">Medium</a>.</p>
+        <h2 id="writing-heading">Writing & Research</h2>
+        <p>I write about systems I build and technologies I evaluate on <a class="inline-link" href="https://medium.com/@tintinwinata">Medium</a>.</p>
         <div class="article-list">
           {articles.map((article) => (
             <a href={article.url}>
@@ -64,12 +62,20 @@ const description = "Singapore-based engineer building production AI systems, vi
             </a>
           ))}
         </div>
+        <h3 class="subsection-label">Research publication</h3>
+        <a class="publication-row" href="https://ieeexplore.ieee.org/document/10327087/">
+          <time>2023</time>
+          <span>
+            <span>Analysis ChatGPT Potential: Transforming Software Development with AI Chat Bots</span>
+            <small>IEEE Xplore</small>
+          </span>
+        </a>
       </section>
 
       <section aria-labelledby="recognition-heading">
         <h2 id="recognition-heading">Recognition</h2>
         <div class="award-list">
-          {awards.map((award) => (
+          {awards.slice(0, 3).map((award) => (
             <article>
               <strong>{award.place}</strong>
               <div>
@@ -79,6 +85,11 @@ const description = "Singapore-based engineer building production AI systems, vi
             </article>
           ))}
         </div>
+      </section>
+
+      <section aria-labelledby="education-heading">
+        <h2 id="education-heading">Education</h2>
+        <p class="education-copy"><strong>B.Sc. in Computer Science</strong>, <a class="inline-link" href="https://binus.ac.id/">BINUS University</a> — GPA 3.92/4.00.</p>
       </section>
 
       <section aria-labelledby="certifications-heading">
@@ -97,28 +108,12 @@ const description = "Singapore-based engineer building production AI systems, vi
         </div>
       </section>
 
-      <section aria-labelledby="publications-heading">
-        <h2 id="publications-heading">Publications</h2>
-        <a class="publication-row" href="https://ieeexplore.ieee.org/document/10327087/">
-          <time>2023</time>
-          <span>
-            <span>Analysis ChatGPT Potential: Transforming Software Development with AI Chat Bots</span>
-            <small>IEEE Xplore</small>
-          </span>
-        </a>
-      </section>
-
-      <section aria-labelledby="education-heading">
-        <h2 id="education-heading">Education</h2>
-        <p class="education-copy">I studied computer science at <a class="inline-link" href="https://binus.ac.id/"><strong>BINUS University</strong></a>, GPA 3.92.</p>
-      </section>
-
       <footer>
         <div>
-          <h2>Open for Opportunities</h2>
-          <p>Singapore · +65 9352 6719</p>
+          <h2>Let’s build reliable AI systems</h2>
+          <p>Interested in AI infrastructure, distributed systems and developer tooling · Singapore</p>
         </div>
-        <a class="email-button" href="mailto:tintin6892@gmail.com">tintin6892@gmail.com</a>
+        <a class="email-button" href="mailto:tintin6892@gmail.com">email me</a>
       </footer>
     </div>
   </main>
