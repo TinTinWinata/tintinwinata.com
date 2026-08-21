@@ -77,16 +77,16 @@ export default function QuantizationCharts() {
     </div>
 
     <div className="selected-result" aria-live="polite">
-      <div><span>binary recall</span><strong>{pct(selectedBinary.mean)}</strong><small>{ms(selectedBinary.latency)} median</small></div>
-      <div><span>scalar recall</span><strong>{pct(selectedScalar.mean)}</strong><small>{ms(selectedScalar.latency)} median</small></div>
+      <div><span>MongoDB binary</span><strong>{pct(selectedBinary.mean)}</strong><small>{ms(selectedBinary.latency)} median</small></div>
+      <div><span>MongoDB scalar</span><strong>{pct(selectedScalar.mean)}</strong><small>{ms(selectedScalar.latency)} median</small></div>
       <p>At {selectedBinary.nc.toLocaleString()} candidates, binary is <strong>{Math.abs((selectedBinary.mean - selectedScalar.mean) * 100).toFixed(1)} points {selectedBinary.mean >= selectedScalar.mean ? "ahead" : "behind"}</strong> while using {selectedBinary.latency <= selectedScalar.latency ? `${(selectedScalar.latency / selectedBinary.latency).toFixed(1)}× less` : `${(selectedBinary.latency / selectedScalar.latency).toFixed(1)}× more`} median query time.</p>
     </div>
 
     <figure className="chart-card">
-      <figcaption><span>Figure 1 · Mean recall</span><strong>Recall keeps climbing for binary</strong><small>Mean recall@72 across 300 queries. Select a candidate setting above to inspect it.</small></figcaption>
+      <figcaption><span>Figure 1 · Mean recall</span><strong>Recall keeps climbing for MongoDB binary quantization</strong><small>Mean recall@72 across 300 MongoDB Vector Search queries. Select a candidate setting above to inspect it.</small></figcaption>
       <div className="chart-scroll">
         <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-labelledby={recallTitle}>
-          <title id={recallTitle}>Mean recall by number of candidates for binary and scalar quantization</title>
+          <title id={recallTitle}>MongoDB Vector Search mean recall by number of candidates for binary and scalar quantization</title>
           <Axis y={recallY} ticks={[.7, .75, .8, .85, .9, .95]} />
           <path className="chart-line chart-line-binary" d={linePath(binary.map((item) => item.mean), recallY)} />
           <path className="chart-line chart-line-scalar" d={linePath(scalar.map((item) => item.mean), recallY)} />

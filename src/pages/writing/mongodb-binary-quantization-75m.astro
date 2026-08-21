@@ -2,7 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import QuantizationCharts from "../../components/QuantizationCharts";
 
-const title = "Does Binary Quantization Still Hold at 75 Million Vectors? — Justine Winata";
+const title = "MongoDB Vector Search Binary Quantization at 75 Million Vectors — Justine Winata";
 const description = "A MongoDB Vector Search benchmark measuring binary and scalar quantization recall against exact nearest-neighbour ground truth across 75 million real-world embeddings.";
 const results = [
   { quant: "binary", nc: 360, mean: ".7094", median: ".7222", p5: ".4028", latency: "1,165 ms" },
@@ -20,16 +20,16 @@ const results = [
 ];
 ---
 
-<Layout title={title} description={description} socialImage="/writing/binary-quantization-75m.png" type="article">
+<Layout title={title} description={description} socialImage="/writing/mongodb-vector-search-binary-quantization-75m.png" type="article">
   <main class="article-page">
     <div class="reading-progress" aria-hidden="true"></div>
     <article>
       <header class="article-hero">
         <div class="article-hero-copy">
           <a class="article-back" href="/">← Justine Winata</a>
-          <p class="eyebrow">Vector search · field benchmark · August 2026</p>
-          <h1>Does binary quantization still hold at 75 million vectors?</h1>
-          <p class="article-deck">MongoDB’s public benchmark reaches 15.3 million vectors. I wanted to know what happens much further out—when an approximate search over 75 million real-world embeddings can rescore at most 10,000 candidates.</p>
+          <p class="eyebrow">MongoDB Vector Search · field benchmark · August 2026</p>
+          <h1>Does MongoDB Vector Search’s binary quantization hold at 75 million vectors?</h1>
+          <p class="article-deck">MongoDB’s public Vector Search benchmark reaches 15.3 million vectors. I wanted to know what happens much further out—when MongoDB Vector Search runs approximate search over 75 million real-world embeddings but can rescore at most 10,000 candidates.</p>
         </div>
         <div class="article-meta" aria-label="Benchmark summary">
           <div><span>corpus</span><strong>75,000,649</strong></div>
@@ -42,7 +42,7 @@ const results = [
           <summary>On this page</summary>
           <nav aria-label="Article sections">
             <a href="#gap">The benchmark gap</a>
-            <a href="#mechanism">How quantization fails</a>
+            <a href="#mechanism">How MongoDB quantization fails</a>
             <a href="#method">Method and ground truth</a>
             <a href="#results">Interactive results</a>
             <a href="#reading">Reading the result</a>
@@ -60,7 +60,7 @@ const results = [
           <span>On this page</span>
           <nav>
             <a href="#gap"><b>01</b>The benchmark gap</a>
-            <a href="#mechanism"><b>02</b>How quantization fails</a>
+            <a href="#mechanism"><b>02</b>How MongoDB quantization fails</a>
             <a href="#method"><b>03</b>Method and ground truth</a>
             <a href="#results"><b>04</b>Interactive results</a>
             <a href="#reading"><b>05</b>Reading the result</a>
@@ -75,22 +75,22 @@ const results = [
 
       <div class="article-prose">
         <aside class="headline-result">
-          <div><strong>95.8%</strong><span>binary recall · 10,000 candidates</span></div>
-          <p><strong>The candidate ceiling did not cause binary recall to collapse on this corpus.</strong> Binary kept improving across the entire measured range. Scalar plateaued near 73%, and additional search effort barely moved it.</p>
+          <div><strong>95.8%</strong><span>MongoDB binary recall · 10,000 candidates</span></div>
+          <p><strong>MongoDB Vector Search’s candidate ceiling did not cause binary recall to collapse on this corpus.</strong> Its binary index kept improving across the entire measured range. The scalar index plateaued near 73%, and additional search effort barely moved it.</p>
         </aside>
 
         <section id="gap">
           <p class="section-label">01 · The benchmark gap</p>
           <h2>Fifteen million vectors does not answer the 75-million-vector question</h2>
-          <p>MongoDB’s large public benchmark uses 15.3 million, 2048-dimensional embeddings and reports 90–95% recall with quantization. That is useful evidence, but it is a different regime from 75 million vectors at 512 dimensions.</p>
+          <p>MongoDB’s large public Vector Search benchmark uses 15.3 million, 2048-dimensional embeddings and reports 90–95% recall with quantization. That is useful evidence, but it is a different regime from 75 million vectors at 512 dimensions.</p>
           <p>The part that bothered me was the fixed search budget. MongoDB Vector Search caps <code>numCandidates</code> at 10,000. The corpus can keep growing; the pool eligible for exact rescoring cannot. If true neighbours stop reaching that pool, no reranking stage can recover them.</p>
           <p class="question-callout">At what scale does a fixed 10,000-candidate budget stop being enough—and had 75 million vectors already crossed that line?</p>
         </section>
 
         <section id="mechanism">
           <p class="section-label">02 · Mechanism</p>
-          <h2>Binary and scalar fail in different places</h2>
-          <p>Both indexes use compressed values during approximate nearest-neighbour search. The difference comes after retrieval.</p>
+          <h2>MongoDB Vector Search’s binary and scalar indexes fail in different places</h2>
+          <p>Both MongoDB Vector Search indexes use compressed values during approximate nearest-neighbour search. The difference comes after retrieval.</p>
           <div class="search-flow" aria-label="Comparison of binary and scalar search paths">
             <div>
               <span>binary</span>
@@ -101,17 +101,17 @@ const results = [
               <ol><li>int8 ANN</li><li>int8 ranking</li><li>top-k</li></ol>
             </div>
           </div>
-          <p>Binary’s compressed pass only has to retrieve a true neighbour into the candidate pool. Full-precision vectors then repair its ordering. Scalar ranks on the approximation, so increasing the pool cannot necessarily buy back information already lost in that comparison.</p>
+          <p>MongoDB’s binary path only has to retrieve a true neighbour into the candidate pool. MongoDB Vector Search then uses the retained full-precision vectors to repair its ordering. Its scalar path ranks on the approximation, so increasing the pool cannot necessarily buy back information already lost in that comparison.</p>
         </section>
 
         <section id="method">
           <p class="section-label">03 · Method</p>
-          <h2>Exact ground truth without 300 exhaustive database scans</h2>
-          <p>The benchmark uses 75 million real-world visual embeddings, anonymized here to keep the experiment independent from any product or organisation. I selected 300 fixed query vectors and stripped each query’s self-match from both the exact and approximate result sets.</p>
+          <h2>Exact ground truth without 300 exhaustive MongoDB searches</h2>
+          <p>The benchmark measures MongoDB Vector Search over 75 million real-world visual embeddings, anonymized here to keep the experiment independent from any product or organisation. I selected 300 fixed query vectors and stripped each query’s self-match from both the exact and approximate result sets.</p>
           <pre><code>recall@k = | top-k(approximate) ∩ top-k(exact) | / k</code></pre>
           <p>Running an exact database search once per query was impractical at this scale. Instead, the corpus was streamed once in chunks. Every chunk was scored against all queries with exact float32 cosine similarity, while each query maintained a running top-200 pool.</p>
           <ul>
-            <li><strong>Arms:</strong> binary and scalar quantization.</li>
+            <li><strong>Arms:</strong> MongoDB Vector Search indexes using binary and scalar quantization.</li>
             <li><strong>Candidate sweep:</strong> 360, 720, 1080, 1440, 4000, and 10000.</li>
             <li><strong>Primary metric:</strong> document-ID overlap at k=72—not the score reported by the index.</li>
             <li><strong>Tail metrics:</strong> median, p5, p95, and per-query perfect recall.</li>
@@ -124,7 +124,7 @@ const results = [
       <section class="article-results" id="results">
         <div class="article-prose results-intro">
           <p class="section-label">04 · Results</p>
-          <h2>More candidates rescue binary. They barely affect scalar.</h2>
+          <h2>More candidates rescue MongoDB binary search. They barely affect scalar.</h2>
           <p>The controls below are linked across every chart. Select one candidate setting and the recall, latency, and tail readouts update together.</p>
         </div>
         <QuantizationCharts client:load />
@@ -142,7 +142,7 @@ const results = [
         <section id="scores">
           <p class="section-label">06 · Score fidelity</p>
           <h2>A failed correctness check explained the whole curve</h2>
-          <p>I compared the score returned for a document with the independently computed exact score for that same document. The result split sharply by quantization.</p>
+          <p>I compared the score MongoDB Vector Search returned for a document with the independently computed exact score for that same document. The result split sharply by quantization.</p>
           <div class="score-comparison">
             <div><span>binary · mean absolute error</span><strong>7.1 × 10<sup>−8</sup></strong><p>Float32 precision. Surviving candidates were reordered using their full-fidelity vectors.</p></div>
             <div><span>scalar · mean absolute error</span><strong>3.1 × 10<sup>−3</sup></strong><p>The returned ordering still reflected the int8 approximation.</p></div>
@@ -152,7 +152,7 @@ const results = [
 
         <section id="ceiling">
           <p class="section-label">07 · The 10,000-candidate ceiling</p>
-          <h2>Can binary still be trusted?</h2>
+          <h2>Can MongoDB binary quantization still be trusted?</h2>
           <p>For this corpus and this query set: yes, with a measured operating point. The recall curve is still rising at 10,000, and its tail improves alongside its mean. There is no sign of a catastrophic ceiling at 75 million vectors.</p>
           <p>That is deliberately narrower than saying binary recall “survives scale.” Corpus geometry can dominate corpus size. Duplicate density, embedding dimensionality, filters, result width, and the number of index segments all change how difficult it is for a 1-bit graph to retrieve the right pool.</p>
           <div class="decision-grid">
@@ -164,8 +164,8 @@ const results = [
 
         <section id="storage">
           <p class="section-label">08 · Resource tradeoff</p>
-          <h2>Binary quantization buys search memory, not equivalent disk savings</h2>
-          <p>The compact 1-bit representation reduces the vector working set used by approximate search. But automated binary quantization retains full-precision vectors for rescoring. Storage planning must account for both representations and the graph rather than assuming a 32× smaller index on disk.</p>
+          <h2>MongoDB binary quantization buys search memory, not equivalent disk savings</h2>
+          <p>MongoDB Vector Search’s compact 1-bit representation reduces the vector working set used by approximate search. But its automated binary quantization retains full-precision vectors for rescoring. Storage planning must account for both representations and the graph rather than assuming a 32× smaller index on disk.</p>
         </section>
 
         <section id="limitations">
@@ -186,7 +186,7 @@ const results = [
           <h2>Benchmark the ceiling, not an extrapolation</h2>
           <ol class="recommendations">
             <li><strong>Measure the real result width.</strong> Recall at k=10, k=24, and k=100 are different problems.</li>
-            <li><strong>Sweep all the way to 10,000.</strong> If the binary curve is still climbing, the ceiling is part of the product decision.</li>
+            <li><strong>Sweep MongoDB Vector Search all the way to 10,000.</strong> If the binary curve is still climbing, the ceiling is part of the product decision.</li>
             <li><strong>Read p5 alongside the mean.</strong> A strong average can hide a persistent population of failed queries.</li>
             <li><strong>Use exact document overlap.</strong> Do not let quantized score differences contaminate the recall metric.</li>
             <li><strong>Repeat with real filters and data geometry.</strong> Vendor benchmarks are starting points, not capacity plans.</li>

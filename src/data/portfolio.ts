@@ -121,7 +121,7 @@ export const earlierProjects = [
 ];
 
 export const articles: Article[] = [
-  { date: "Aug 2026", title: "Does Binary Quantization Still Hold at 75 Million Vectors?", url: "/writing/mongodb-binary-quantization-75m/" },
+  { date: "Aug 2026", title: "MongoDB Vector Search: Binary Quantization at 75 Million Vectors", url: "/writing/mongodb-binary-quantization-75m/" },
   { date: "Jun 2026", title: "ClickHouse vs MongoDB: When Milliseconds Become Minutes", url: "https://medium.com/@tintinwinata/clickhouse-vs-mongodb-when-milliseconds-become-minutes-3ea847eba015" },
   { date: "Jan 2026", title: "Built an AI That Auto-Creates JIRA Tickets From Production Errors—and Won", url: "https://medium.com/@tintinwinata/built-an-ai-that-auto-creates-jira-tickets-from-production-errors-and-won-1st-place-doing-it-79b4d83feb88" },
   { date: "Dec 2025", title: "Event-Driven System: Real-Time Entity Linking With Apache Flink", url: "https://medium.com/@tintinwinata/event-driven-system-real-time-entity-linking-with-apache-flink-c52b3e198ca3" },
