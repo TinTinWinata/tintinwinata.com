@@ -45,7 +45,7 @@ const results = [
             <a href="#gap">The benchmark gap</a>
             <a href="#mechanism">How MongoDB quantization fails</a>
             <a href="#method">Method and ground truth</a>
-            <a href="#results">Interactive results</a>
+            <a href="#result-controls">Interactive results</a>
             <a href="#reading">Reading the result</a>
             <a href="#scores">Score fidelity</a>
             <a href="#ceiling">The candidate ceiling</a>
@@ -63,7 +63,7 @@ const results = [
             <a href="#gap"><b>01</b>The benchmark gap</a>
             <a href="#mechanism"><b>02</b>How MongoDB quantization fails</a>
             <a href="#method"><b>03</b>Method and ground truth</a>
-            <a href="#results"><b>04</b>Interactive results</a>
+            <a href="#result-controls"><b>04</b>Interactive results</a>
             <a href="#reading"><b>05</b>Reading the result</a>
             <a href="#scores"><b>06</b>Score fidelity</a>
             <a href="#ceiling"><b>07</b>The candidate ceiling</a>
@@ -119,7 +119,9 @@ const results = [
           <h2>More candidates rescue MongoDB binary search. They barely affect scalar.</h2>
           <p>The controls below are linked across every chart. Select one candidate setting and the recall, latency, and tail readouts update together.</p>
         </div>
-        <QuantizationCharts client:load />
+        <div id="result-controls" class="results-controls-anchor">
+          <QuantizationCharts client:load />
+        </div>
       </section>
 
       <div class="article-prose">
@@ -262,6 +264,7 @@ const results = [
   .question-callout { padding: 20px 24px; background: #f5f1ea; border-left: 2px solid var(--accent); color: var(--ink); font-size: 21px; }
   .article-results { margin-top: 86px; padding: 76px 0 28px; background: linear-gradient(180deg, #f5f2ec 0, #faf8f4 100%); border: 1px solid var(--line-soft); border-width: 1px 0; scroll-margin-top: 24px; }
   .results-intro { margin-bottom: 28px; }
+  .results-controls-anchor { scroll-margin-top: 18px; }
   .chart-suite { width: min(1160px, calc(100% - 64px)); margin: 0 auto; }
   .candidate-control { display: flex; justify-content: space-between; gap: 20px; align-items: center; padding: 12px 14px; background: #f3f0ea; border: 1px solid var(--line-soft); border-radius: 5px; }
   .candidate-control > span { font: 11px/1.5 var(--mono); color: var(--muted); }
