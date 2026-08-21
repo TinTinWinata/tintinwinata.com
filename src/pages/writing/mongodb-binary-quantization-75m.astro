@@ -276,6 +276,15 @@ const results = [
   .chart-dot-scalar { fill: #fff; stroke: #4d5963; }
   .chart-dot.is-selected { fill: var(--paper); stroke-width: 3.5; }
   .chart-selection { stroke: #c7c0b6; stroke-width: 1; stroke-dasharray: 3 5; }
+  .chart-hit-area,
+  .chart-point-hit { fill: transparent; cursor: crosshair; }
+  .chart-hit-area:focus { outline: none; stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 4 5; }
+  .chart-interactive-point { cursor: crosshair; outline: none; }
+  .chart-interactive-point:focus-visible .chart-dot { stroke-width: 4; }
+  .chart-tooltip { pointer-events: none; }
+  .chart-tooltip rect { fill: var(--ink); stroke: rgba(255, 255, 255, .18); stroke-width: 1; filter: drop-shadow(0 5px 12px rgba(35, 32, 28, .16)); }
+  .chart-tooltip text { fill: var(--paper); font: 10px/1 var(--mono); }
+  .chart-tooltip .chart-tooltip-title { fill: var(--accent-soft); font-weight: 500; letter-spacing: .04em; }
   .chart-band { stroke: none; opacity: .1; }
   .chart-band-binary { fill: var(--accent); }
   .chart-band-scalar { fill: #4d5963; }
