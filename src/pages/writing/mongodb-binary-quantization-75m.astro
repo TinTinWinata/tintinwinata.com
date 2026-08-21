@@ -1,6 +1,7 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import QuantizationCharts from "../../components/QuantizationCharts";
+import SearchMechanism from "../../components/SearchMechanism";
 
 const title = "MongoDB Vector Search Binary Quantization at 75 Million Vectors — Justine Winata";
 const description = "A MongoDB Vector Search benchmark measuring binary and scalar quantization recall against exact nearest-neighbour ground truth across 75 million real-world embeddings.";
@@ -91,16 +92,7 @@ const results = [
           <p class="section-label">02 · Mechanism</p>
           <h2>MongoDB Vector Search’s binary and scalar indexes fail in different places</h2>
           <p>Both MongoDB Vector Search indexes use compressed values during approximate nearest-neighbour search. The difference comes after retrieval.</p>
-          <div class="search-flow" aria-label="Comparison of binary and scalar search paths">
-            <div>
-              <span>binary</span>
-              <ol><li>1-bit ANN</li><li>candidate pool</li><li>float32 rescore</li><li>top-k</li></ol>
-            </div>
-            <div>
-              <span>scalar</span>
-              <ol><li>int8 ANN</li><li>int8 ranking</li><li>top-k</li></ol>
-            </div>
-          </div>
+          <SearchMechanism client:load />
           <p>MongoDB’s binary path only has to retrieve a true neighbour into the candidate pool. MongoDB Vector Search then uses the retained full-precision vectors to repair its ordering. Its scalar path ranks on the approximation, so increasing the pool cannot necessarily buy back information already lost in that comparison.</p>
         </section>
 
@@ -268,12 +260,6 @@ const results = [
   .headline-result > div strong { color: var(--accent); font: 500 clamp(48px, 7vw, 66px)/1 var(--mono); letter-spacing: -.06em; }
   .headline-result p { margin: 0; }
   .question-callout { padding: 20px 24px; background: #f5f1ea; border-left: 2px solid var(--accent); color: var(--ink); font-size: 21px; }
-  .search-flow { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: min(900px, calc(100vw - 48px)); margin: 30px 0 30px 50%; transform: translateX(-50%); }
-  .search-flow > div { padding: 20px; border: 1px solid var(--line); border-radius: 5px; }
-  .search-flow > div > span { color: var(--accent); font: 500 12px/1.5 var(--mono); text-transform: uppercase; }
-  .search-flow ol { display: flex; flex-wrap: wrap; gap: 7px; margin: 14px 0 0; padding: 0; list-style: none; counter-reset: flow; }
-  .search-flow li { margin: 0; padding: 6px 9px; background: #f3f0ea; border-radius: 3px; font: 11px/1.4 var(--mono); }
-  .search-flow li + li::before { content: "→"; margin-right: 9px; color: var(--muted); }
   .article-results { margin-top: 86px; padding: 76px 0 28px; background: linear-gradient(180deg, #f5f2ec 0, #faf8f4 100%); border: 1px solid var(--line-soft); border-width: 1px 0; scroll-margin-top: 24px; }
   .results-intro { margin-bottom: 28px; }
   .chart-suite { width: min(1160px, calc(100% - 64px)); margin: 0 auto; }
@@ -373,7 +359,6 @@ const results = [
     .article-meta div:last-child { grid-column: 1 / -1; }
     .mobile-toc nav { grid-template-columns: 1fr; }
     .headline-result { grid-template-columns: 1fr; gap: 18px; }
-    .search-flow,
     .score-comparison,
     .decision-grid { grid-template-columns: 1fr; }
     .candidate-control { align-items: flex-start; flex-direction: column; }
