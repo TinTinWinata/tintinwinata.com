@@ -56,24 +56,6 @@ const results = [
         </details>
       </header>
 
-      <aside class="article-toc" aria-label="Article sections">
-        <div>
-          <span>On this page</span>
-          <nav>
-            <a href="#gap"><b>01</b>The benchmark gap</a>
-            <a href="#mechanism"><b>02</b>How MongoDB quantization fails</a>
-            <a href="#method"><b>03</b>Method and ground truth</a>
-            <a href="#result-controls"><b>04</b>Interactive results</a>
-            <a href="#reading"><b>05</b>Reading the result</a>
-            <a href="#scores"><b>06</b>Score fidelity</a>
-            <a href="#ceiling"><b>07</b>The candidate ceiling</a>
-            <a href="#storage"><b>08</b>Resource tradeoff</a>
-            <a href="#limitations"><b>09</b>Limitations</a>
-            <a href="#recommendations"><b>10</b>Recommendations</a>
-          </nav>
-        </div>
-      </aside>
-
       <div class="article-prose">
         <aside class="headline-result">
           <div><strong>95.8%</strong><span>MongoDB binary recall · 10,000 candidates</span></div>
@@ -249,13 +231,6 @@ const results = [
   .article-prose ul { padding-left: 22px; }
   .article-prose li { margin: 7px 0; }
   .article-prose blockquote { margin: 30px 0; padding: 2px 0 2px 24px; border-left: 2px solid var(--accent); color: var(--ink); font-size: 23px; line-height: 1.45; }
-  .article-toc { position: sticky; z-index: 5; top: 28px; width: 184px; height: 0; margin: 54px 0 0 max(24px, calc(50% - 680px)); }
-  .article-toc > div { padding-left: 16px; border-left: 1px solid var(--line); }
-  .article-toc > div > span { display: block; margin-bottom: 12px; color: var(--muted); font: 10px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; }
-  .article-toc nav { display: grid; gap: 2px; }
-  .article-toc a { display: grid; grid-template-columns: 24px 1fr; gap: 4px; padding: 5px 0; color: var(--muted); font: 11px/1.35 var(--mono); text-decoration: none; }
-  .article-toc a b { color: #aaa298; font-weight: 400; }
-  .article-toc a:hover { color: var(--accent-dark); }
   .mobile-toc { display: none; }
   .headline-result { display: grid; grid-template-columns: 260px 1fr; gap: 42px; align-items: center; width: min(920px, calc(100vw - 48px)); margin: 54px 0 0 50%; padding: 30px 0; border: 1px solid var(--line); border-width: 1px 0; transform: translateX(-50%); }
   .headline-result > div { display: grid; }
@@ -338,7 +313,6 @@ const results = [
   .article-footer p { max-width: 500px; margin: 0; }
 
   @media (max-width: 1380px) {
-    .article-toc { display: none; }
     .mobile-toc { display: block; margin-top: 22px; border: 1px solid var(--line); border-radius: 5px; }
     .mobile-toc summary { padding: 13px 15px; color: var(--ink); font: 11px/1.5 var(--mono); cursor: pointer; }
     .mobile-toc nav { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; padding: 2px 15px 14px; }
