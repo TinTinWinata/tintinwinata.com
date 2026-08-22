@@ -1,5 +1,5 @@
 .mechanism {
-  width: min(980px, calc(100vw - 48px));
+  width: min(var(--article-wide-width, 960px), calc(100vw - var(--article-visual-gutter, 48px)));
   margin: 32px 0 34px 50%;
   color: var(--ink);
   transform: translateX(-50%);
