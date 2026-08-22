@@ -6,26 +6,25 @@ type Result = {
   median: number;
   p5: number;
   p95: number;
-  latency: number;
   perfect: number;
 };
 
 const binary: Result[] = [
-  { nc: 360, mean: .7094, median: .7222, p5: .4028, p95: .9861, latency: 1165.4, perfect: 4 },
-  { nc: 720, mean: .7940, median: .8194, p5: .4861, p95: 1, latency: 648.6, perfect: 8 },
-  { nc: 1080, mean: .8365, median: .8611, p5: .5556, p95: 1, latency: 607.9, perfect: 11 },
-  { nc: 1440, mean: .8596, median: .8889, p5: .5972, p95: 1, latency: 585.6, perfect: 13 },
-  { nc: 4000, mean: .9245, median: .9583, p5: .7083, p95: 1, latency: 3508.8, perfect: 24 },
-  { nc: 10000, mean: .9578, median: .9861, p5: .8194, p95: 1, latency: 7048, perfect: 38 },
+  { nc: 360, mean: .7094, median: .7222, p5: .4028, p95: .9861, perfect: 4 },
+  { nc: 720, mean: .7940, median: .8194, p5: .4861, p95: 1, perfect: 8 },
+  { nc: 1080, mean: .8365, median: .8611, p5: .5556, p95: 1, perfect: 11 },
+  { nc: 1440, mean: .8596, median: .8889, p5: .5972, p95: 1, perfect: 13 },
+  { nc: 4000, mean: .9245, median: .9583, p5: .7083, p95: 1, perfect: 24 },
+  { nc: 10000, mean: .9578, median: .9861, p5: .8194, p95: 1, perfect: 38 },
 ];
 
 const scalar: Result[] = [
-  { nc: 360, mean: .7231, median: .8472, p5: .1944, p95: .9861, latency: 3141.9, perfect: 0 },
-  { nc: 720, mean: .7261, median: .8472, p5: .1944, p95: .9861, latency: 1939.9, perfect: 0 },
-  { nc: 1080, mean: .7274, median: .8542, p5: .1944, p95: .9861, latency: 1867.9, perfect: 0 },
-  { nc: 1440, mean: .7300, median: .8611, p5: .1944, p95: .9861, latency: 1829.7, perfect: 0 },
-  { nc: 4000, mean: .7309, median: .8611, p5: .1944, p95: .9861, latency: 12039.7, perfect: 0 },
-  { nc: 10000, mean: .7312, median: .8611, p5: .1944, p95: .9861, latency: 27582.2, perfect: 0 },
+  { nc: 360, mean: .7231, median: .8472, p5: .1944, p95: .9861, perfect: 0 },
+  { nc: 720, mean: .7261, median: .8472, p5: .1944, p95: .9861, perfect: 0 },
+  { nc: 1080, mean: .7274, median: .8542, p5: .1944, p95: .9861, perfect: 0 },
+  { nc: 1440, mean: .7300, median: .8611, p5: .1944, p95: .9861, perfect: 0 },
+  { nc: 4000, mean: .7309, median: .8611, p5: .1944, p95: .9861, perfect: 0 },
+  { nc: 10000, mean: .7312, median: .8611, p5: .1944, p95: .9861, perfect: 0 },
 ];
 
 const width = 760;
@@ -36,13 +35,11 @@ const plotHeight = height - margin.top - margin.bottom;
 const round = (value: number) => Number(value.toFixed(3));
 const xs = binary.map((_, index) => round(margin.left + (plotWidth * index) / (binary.length - 1)));
 const pct = (value: number) => `${(value * 100).toFixed(1)}%`;
-const ms = (value: number) => value >= 1000 ? `${(value / 1000).toFixed(value >= 10000 ? 1 : 2)} s` : `${Math.round(value)} ms`;
 const linePath = (values: number[], y: (value: number) => number) => values.map((value, index) => `${index ? "L" : "M"}${xs[index]},${round(y(value))}`).join(" ");
 
 type HoveredPoint = {
-  chart: "recall" | "tail" | "cost";
+  chart: "recall" | "tail";
   index: number;
-  series?: "binary" | "scalar";
 };
 
 function Tooltip({ x, y, title, lines }: { x: number; y: number; title: string; lines: string[] }) {
@@ -73,11 +70,8 @@ export default function QuantizationCharts() {
   const [hovered, setHovered] = useState<HoveredPoint | null>(null);
   const recallTitle = useId();
   const tailTitle = useId();
-  const costTitle = useId();
   const recallY = (value: number) => round(margin.top + ((.98 - value) / (.98 - .68)) * plotHeight);
   const tailY = (value: number) => round(margin.top + ((1.02 - value) / (1.02 - .15)) * plotHeight);
-  const latencyX = (value: number) => round(margin.left + ((Math.log10(value) - Math.log10(500)) / (Math.log10(30000) - Math.log10(500))) * plotWidth);
-  const costY = recallY;
   const binaryBand = [...binary.map((item, index) => `${xs[index]},${tailY(item.p95)}`), ...binary.slice().reverse().map((item, reverseIndex) => `${xs[binary.length - 1 - reverseIndex]},${tailY(item.p5)}`)].join(" ");
   const scalarBand = [...scalar.map((item, index) => `${xs[index]},${tailY(item.p95)}`), ...scalar.slice().reverse().map((item, reverseIndex) => `${xs[scalar.length - 1 - reverseIndex]},${tailY(item.p5)}`)].join(" ");
   const selectedBinary = binary[selected];
@@ -110,9 +104,9 @@ export default function QuantizationCharts() {
     </div>
 
     <div className="selected-result" aria-live="polite">
-      <div><span>MongoDB binary</span><strong>{pct(selectedBinary.mean)}</strong><small>{ms(selectedBinary.latency)} median</small></div>
-      <div><span>MongoDB scalar</span><strong>{pct(selectedScalar.mean)}</strong><small>{ms(selectedScalar.latency)} median</small></div>
-      <p>At {selectedBinary.nc.toLocaleString()} candidates, binary is <strong>{Math.abs((selectedBinary.mean - selectedScalar.mean) * 100).toFixed(1)} points {selectedBinary.mean >= selectedScalar.mean ? "ahead" : "behind"}</strong> while using {selectedBinary.latency <= selectedScalar.latency ? `${(selectedScalar.latency / selectedBinary.latency).toFixed(1)}× less` : `${(selectedBinary.latency / selectedScalar.latency).toFixed(1)}× more`} median query time.</p>
+      <div><span>MongoDB binary</span><strong>{pct(selectedBinary.mean)}</strong><small>mean recall@72</small></div>
+      <div><span>MongoDB scalar</span><strong>{pct(selectedScalar.mean)}</strong><small>mean recall@72</small></div>
+      <p>At {selectedBinary.nc.toLocaleString()} candidates, binary is <strong>{Math.abs((selectedBinary.mean - selectedScalar.mean) * 100).toFixed(1)} points {selectedBinary.mean >= selectedScalar.mean ? "ahead" : "behind"}</strong>. Its p5 recall is {pct(selectedBinary.p5)}, compared with {pct(selectedScalar.p5)} for scalar.</p>
     </div>
 
     <figure className="chart-card">
@@ -197,60 +191,5 @@ export default function QuantizationCharts() {
       <div className="tail-readout"><span>binary p5 <strong>{pct(selectedBinary.p5)}</strong></span><span>scalar p5 <strong>{pct(selectedScalar.p5)}</strong></span><span>perfect binary queries <strong>{selectedBinary.perfect}%</strong></span></div>
     </figure>
 
-    <figure className="chart-card">
-      <figcaption><span>Figure 3 · Cost of recall</span><strong>Accuracy against median query latency</strong><small>Up and to the left is better. Hover or focus any point for its exact recall, latency, and candidate setting.</small></figcaption>
-      <div className="chart-scroll">
-        <svg viewBox={`0 0 ${width} ${height}`} role="group" aria-labelledby={costTitle} onPointerLeave={() => setHovered(null)}>
-          <title id={costTitle}>Recall plotted against median query latency</title>
-          {[.7, .75, .8, .85, .9, .95].map((tick) => <g key={tick}>
-            <line className="chart-grid" x1={margin.left} x2={width - margin.right} y1={costY(tick)} y2={costY(tick)} />
-            <text className="chart-axis-label" x={margin.left - 10} y={costY(tick) + 4} textAnchor="end">{Math.round(tick * 100)}%</text>
-          </g>)}
-          {[500, 1000, 3000, 10000, 30000].map((tick) => <g key={tick}>
-            <line className="chart-grid chart-grid-vertical" x1={latencyX(tick)} x2={latencyX(tick)} y1={margin.top} y2={height - margin.bottom} />
-            <text className="chart-axis-label" x={latencyX(tick)} y={height - 20} textAnchor="middle">{tick >= 1000 ? `${tick / 1000}s` : `${tick}ms`}</text>
-          </g>)}
-          <path className="chart-line chart-line-binary" d={binary.map((item, index) => `${index ? "L" : "M"}${latencyX(item.latency)},${costY(item.mean)}`).join(" ")} />
-          <path className="chart-line chart-line-scalar" d={scalar.map((item, index) => `${index ? "L" : "M"}${latencyX(item.latency)},${costY(item.mean)}`).join(" ")} />
-          {binary.map((item, index) => <g
-            key={`cb-${item.nc}`}
-            className="chart-interactive-point"
-            tabIndex={0}
-            role="button"
-            aria-label={`Binary, ${item.nc} candidates: ${pct(item.mean)} recall at ${ms(item.latency)}`}
-            onPointerEnter={() => activate({ chart: "cost", index, series: "binary" })}
-            onMouseEnter={() => activate({ chart: "cost", index, series: "binary" })}
-            onClick={() => activate({ chart: "cost", index, series: "binary" })}
-            onFocus={() => activate({ chart: "cost", index, series: "binary" })}
-            onKeyDown={(event) => activateFromKeyboard(event, { chart: "cost", index, series: "binary" })}
-            onBlur={() => setHovered(null)}
-          ><circle className={`chart-dot chart-dot-binary ${selected === index ? "is-selected" : ""}`} cx={latencyX(item.latency)} cy={costY(item.mean)} r={selected === index ? 7 : 4} /><circle className="chart-point-hit" cx={latencyX(item.latency)} cy={costY(item.mean)} r="15" /><text className="chart-point-label" x={latencyX(item.latency) + 8} y={costY(item.mean) - 8}>{item.nc >= 1000 ? `${item.nc / 1000}k` : item.nc}</text></g>)}
-          {scalar.map((item, index) => <g
-            key={`cs-${item.nc}`}
-            className="chart-interactive-point"
-            tabIndex={0}
-            role="button"
-            aria-label={`Scalar, ${item.nc} candidates: ${pct(item.mean)} recall at ${ms(item.latency)}`}
-            onPointerEnter={() => activate({ chart: "cost", index, series: "scalar" })}
-            onMouseEnter={() => activate({ chart: "cost", index, series: "scalar" })}
-            onClick={() => activate({ chart: "cost", index, series: "scalar" })}
-            onFocus={() => activate({ chart: "cost", index, series: "scalar" })}
-            onKeyDown={(event) => activateFromKeyboard(event, { chart: "cost", index, series: "scalar" })}
-            onBlur={() => setHovered(null)}
-          ><rect className={`chart-dot chart-dot-scalar ${selected === index ? "is-selected" : ""}`} x={latencyX(item.latency) - (selected === index ? 6 : 4)} y={costY(item.mean) - (selected === index ? 6 : 4)} width={selected === index ? 12 : 8} height={selected === index ? 12 : 8} /><circle className="chart-point-hit" cx={latencyX(item.latency)} cy={costY(item.mean)} r="15" /></g>)}
-          {hovered?.chart === "cost" && (() => {
-            const series = hovered.series === "scalar" ? "scalar" : "binary";
-            const item = series === "binary" ? binary[hovered.index] : scalar[hovered.index];
-            return <Tooltip
-              x={latencyX(item.latency)}
-              y={costY(item.mean)}
-              title={`${series} · nc ${item.nc.toLocaleString()}`}
-              lines={[`recall  ${pct(item.mean)}`, `latency  ${ms(item.latency)}`]}
-            />;
-          })()}
-          <text className="chart-x-title" x={width / 2} y={height - 2} textAnchor="middle">median query latency · logarithmic scale</text>
-        </svg>
-      </div>
-    </figure>
   </div>;
 }

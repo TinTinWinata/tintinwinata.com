@@ -6,18 +6,18 @@ import SearchMechanism from "../../components/SearchMechanism";
 const title = "MongoDB Vector Search Binary Quantization at 75 Million Vectors — Justine Winata";
 const description = "A MongoDB Vector Search benchmark measuring binary and scalar quantization recall against exact nearest-neighbour ground truth across 75 million real-world embeddings.";
 const results = [
-  { quant: "binary", nc: 360, mean: ".7094", median: ".7222", p5: ".4028", latency: "1,165 ms" },
-  { quant: "binary", nc: 720, mean: ".7940", median: ".8194", p5: ".4861", latency: "649 ms" },
-  { quant: "binary", nc: 1080, mean: ".8365", median: ".8611", p5: ".5556", latency: "608 ms" },
-  { quant: "binary", nc: 1440, mean: ".8596", median: ".8889", p5: ".5972", latency: "586 ms" },
-  { quant: "binary", nc: 4000, mean: ".9245", median: ".9583", p5: ".7083", latency: "3,509 ms" },
-  { quant: "binary", nc: 10000, mean: ".9578", median: ".9861", p5: ".8194", latency: "7,048 ms" },
-  { quant: "scalar", nc: 360, mean: ".7231", median: ".8472", p5: ".1944", latency: "3,142 ms" },
-  { quant: "scalar", nc: 720, mean: ".7261", median: ".8472", p5: ".1944", latency: "1,940 ms" },
-  { quant: "scalar", nc: 1080, mean: ".7274", median: ".8542", p5: ".1944", latency: "1,868 ms" },
-  { quant: "scalar", nc: 1440, mean: ".7300", median: ".8611", p5: ".1944", latency: "1,830 ms" },
-  { quant: "scalar", nc: 4000, mean: ".7309", median: ".8611", p5: ".1944", latency: "12,040 ms" },
-  { quant: "scalar", nc: 10000, mean: ".7312", median: ".8611", p5: ".1944", latency: "27,582 ms" },
+  { quant: "binary", nc: 360, mean: ".7094", median: ".7222", p5: ".4028" },
+  { quant: "binary", nc: 720, mean: ".7940", median: ".8194", p5: ".4861" },
+  { quant: "binary", nc: 1080, mean: ".8365", median: ".8611", p5: ".5556" },
+  { quant: "binary", nc: 1440, mean: ".8596", median: ".8889", p5: ".5972" },
+  { quant: "binary", nc: 4000, mean: ".9245", median: ".9583", p5: ".7083" },
+  { quant: "binary", nc: 10000, mean: ".9578", median: ".9861", p5: ".8194" },
+  { quant: "scalar", nc: 360, mean: ".7231", median: ".8472", p5: ".1944" },
+  { quant: "scalar", nc: 720, mean: ".7261", median: ".8472", p5: ".1944" },
+  { quant: "scalar", nc: 1080, mean: ".7274", median: ".8542", p5: ".1944" },
+  { quant: "scalar", nc: 1440, mean: ".7300", median: ".8611", p5: ".1944" },
+  { quant: "scalar", nc: 4000, mean: ".7309", median: ".8611", p5: ".1944" },
+  { quant: "scalar", nc: 10000, mean: ".7312", median: ".8611", p5: ".1944" },
 ];
 ---
 
@@ -89,7 +89,6 @@ const results = [
             <li><strong>Candidate sweep:</strong> 360, 720, 1080, 1440, 4000, and 10000.</li>
             <li><strong>Primary metric:</strong> document-ID overlap at k=72—not the score reported by the index.</li>
             <li><strong>Tail metrics:</strong> median, p5, p95, and per-query perfect recall.</li>
-            <li><strong>Latency:</strong> median query time from a warm sweep on this benchmark host.</li>
           </ul>
           <p>The exact pool was validated independently by rereading stored vectors and recomputing their cosine values. Agreement was within float32 precision.</p>
         </section>
@@ -99,7 +98,7 @@ const results = [
         <div class="article-prose results-intro">
           <p class="section-label">04 · Results</p>
           <h2>More candidates rescue MongoDB binary search. They barely affect scalar.</h2>
-          <p>The controls below are linked across every chart. Select one candidate setting and the recall, latency, and tail readouts update together.</p>
+          <p>The controls below are linked across every chart. Select one candidate setting and the mean recall and query-tail readouts update together.</p>
         </div>
         <div id="result-controls" class="results-controls-anchor">
           <QuantizationCharts client:load />
@@ -132,8 +131,8 @@ const results = [
           <p>For this corpus and this query set: yes, with a measured operating point. The recall curve is still rising at 10,000, and its tail improves alongside its mean. There is no sign of a catastrophic ceiling at 75 million vectors.</p>
           <p>That is deliberately narrower than saying binary recall “survives scale.” Corpus geometry can dominate corpus size. Duplicate density, embedding dimensionality, filters, result width, and the number of index segments all change how difficult it is for a 1-bit graph to retrieve the right pool.</p>
           <div class="decision-grid">
-            <div><strong>86.0%</strong><span>recall at 1,440 candidates</span><p>The lower-latency point: 586 ms median in this run.</p></div>
-            <div><strong>92.4%</strong><span>recall at 4,000 candidates</span><p>A middle point at 3.5 seconds median.</p></div>
+            <div><strong>86.0%</strong><span>recall at 1,440 candidates</span><p>Binary is already 13.0 points ahead of scalar at this setting.</p></div>
+            <div><strong>92.4%</strong><span>recall at 4,000 candidates</span><p>The first measured setting above 90% mean recall.</p></div>
             <div><strong>95.8%</strong><span>recall at 10,000 candidates</span><p>The accuracy point—and the final available candidate setting.</p></div>
           </div>
         </section>
@@ -151,7 +150,6 @@ const results = [
             <li><strong>No full-scale unquantized control.</strong> Recall here combines approximation and quantization effects.</li>
             <li><strong>One corpus is not a scaling law.</strong> The result does not isolate corpus size from embedding distribution.</li>
             <li><strong>No query-time filters.</strong> Selective filters can materially change graph exploration.</li>
-            <li><strong>Latency is environment-specific.</strong> Index residency and concurrent workloads can outweigh the effect of k.</li>
             <li><strong>Geometric recall is not relevance.</strong> This measures nearest-neighbour fidelity, not whether a human prefers the result.</li>
           </ul>
           <p>The strongest follow-up is a controlled scale curve: deterministic nested subsets from the same corpus, the same queries, and exact ground truth recomputed within each subset. That would isolate corpus size instead of comparing two different distributions.</p>
@@ -173,8 +171,8 @@ const results = [
           <summary>Full aggregate results</summary>
           <div class="results-table-wrap">
             <table>
-              <thead><tr><th>quant</th><th>nc</th><th>mean</th><th>median</th><th>p5</th><th>latency</th></tr></thead>
-              <tbody>{results.map((result) => <tr><td>{result.quant}</td><td>{result.nc}</td><td>{result.mean}</td><td>{result.median}</td><td>{result.p5}</td><td>{result.latency}</td></tr>)}</tbody>
+              <thead><tr><th>quant</th><th>nc</th><th>mean</th><th>median</th><th>p5</th></tr></thead>
+              <tbody>{results.map((result) => <tr><td>{result.quant}</td><td>{result.nc}</td><td>{result.mean}</td><td>{result.median}</td><td>{result.p5}</td></tr>)}</tbody>
             </table>
           </div>
         </details>
@@ -263,11 +261,8 @@ const results = [
   .chart-scroll { overflow-x: auto; }
   .chart-scroll svg { display: block; width: 100%; min-width: 620px; height: auto; }
   .chart-grid { stroke: #ebe7df; stroke-width: 1; }
-  .chart-grid-vertical { stroke-dasharray: 3 4; }
   .chart-axis-label,
-  .chart-x-title,
-  .chart-point-label { fill: #847e75; font-family: var(--mono); font-size: 10px; }
-  .chart-point-label { font-size: 8.5px; }
+  .chart-x-title { fill: #847e75; font-family: var(--mono); font-size: 10px; }
   .chart-line { fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
   .chart-line-binary { stroke: var(--accent); }
   .chart-line-scalar { stroke: #4d5963; stroke-dasharray: 6 5; }
@@ -276,11 +271,8 @@ const results = [
   .chart-dot-scalar { fill: #fff; stroke: #4d5963; }
   .chart-dot.is-selected { fill: var(--paper); stroke-width: 3.5; }
   .chart-selection { stroke: #c7c0b6; stroke-width: 1; stroke-dasharray: 3 5; }
-  .chart-hit-area,
-  .chart-point-hit { fill: transparent; cursor: crosshair; }
+  .chart-hit-area { fill: transparent; cursor: crosshair; }
   .chart-hit-area:focus { outline: none; stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 4 5; }
-  .chart-interactive-point { cursor: crosshair; outline: none; }
-  .chart-interactive-point:focus-visible .chart-dot { stroke-width: 4; }
   .chart-tooltip { pointer-events: none; }
   .chart-tooltip rect { fill: var(--ink); stroke: rgba(255, 255, 255, .18); stroke-width: 1; filter: drop-shadow(0 5px 12px rgba(35, 32, 28, .16)); }
   .chart-tooltip text { fill: var(--paper); font: 10px/1 var(--mono); }
