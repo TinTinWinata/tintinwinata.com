@@ -1,7 +1,8 @@
-import { useState, type CSSProperties, type FocusEvent, type PointerEvent } from "react";
+import { useState, type CSSProperties, type FocusEvent, type KeyboardEvent, type PointerEvent } from "react";
 import "./SearchMechanism.css";
 
 type LaneName = "binary" | "scalar";
+type Selection = { lane: LaneName; index: number };
 
 type Step = {
   phase: string;
@@ -77,29 +78,42 @@ const lanes: Record<LaneName, { summary: string; outcome: string; steps: Step[] 
 };
 
 export default function SearchMechanism() {
-  const [active, setActive] = useState<{ lane: LaneName; index: number }>({ lane: "binary", index: 2 });
-  const selected = lanes[active.lane].steps[active.index];
+  const [preview, setPreview] = useState<Selection | null>(null);
+  const [pinned, setPinned] = useState<Selection | null>(null);
+  const visible = preview ?? pinned;
 
-  const select = (lane: LaneName, index: number) => setActive({ lane, index });
-  const keepFocusSelection = (lane: LaneName, index: number, event: FocusEvent<HTMLButtonElement>) => {
-    if (event.currentTarget.matches(":focus-visible")) select(lane, index);
+  const matches = (selection: Selection | null, lane: LaneName, index: number) =>
+    selection?.lane === lane && selection.index === index;
+  const previewOnHover = (lane: LaneName, index: number, event: PointerEvent<HTMLButtonElement>) => {
+    if (event.pointerType !== "touch") setPreview({ lane, index });
   };
-  const keepHoverSelection = (lane: LaneName, index: number, event: PointerEvent<HTMLButtonElement>) => {
-    if (event.pointerType !== "touch") select(lane, index);
+  const previewOnFocus = (lane: LaneName, index: number, event: FocusEvent<HTMLButtonElement>) => {
+    if (event.currentTarget.matches(":focus-visible")) setPreview({ lane, index });
+  };
+  const togglePinned = (lane: LaneName, index: number) => {
+    setPreview(null);
+    setPinned((current) => matches(current, lane, index) ? null : { lane, index });
+  };
+  const closePopover = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key !== "Escape") return;
+    setPreview(null);
+    setPinned(null);
+    event.currentTarget.blur();
   };
 
   return (
     <figure className="mechanism" aria-labelledby="mechanism-caption">
       <figcaption id="mechanism-caption">
         <span>Follow one query through both indexes</span>
-        <small>Hover, focus, or tap a stage to inspect where fidelity can be recovered—or permanently lost.</small>
+        <small>Hover or focus for a quick explanation. Click or tap a stage to keep its popover open.</small>
       </figcaption>
 
       <div className="mechanism-lanes">
         {(Object.keys(lanes) as LaneName[]).map((laneName) => {
           const lane = lanes[laneName];
+          const laneHasPopover = visible?.lane === laneName;
           return (
-            <section className="mechanism-lane" data-lane={laneName} key={laneName} aria-label={`${laneName} quantization path`}>
+            <section className={`mechanism-lane${laneHasPopover ? " has-open-popover" : ""}`} data-lane={laneName} key={laneName} aria-label={`${laneName} quantization path`}>
               <header>
                 <div>
                   <span className="mechanism-lane-name">{laneName}</span>
@@ -110,25 +124,52 @@ export default function SearchMechanism() {
 
               <div
                 className="mechanism-stages"
-                style={{ "--active-step": active.lane === laneName ? active.index : -1 } as CSSProperties}
+                style={{ "--active-step": visible?.lane === laneName ? visible.index : -1 } as CSSProperties}
               >
                 {lane.steps.map((step, index) => {
-                  const isActive = active.lane === laneName && active.index === index;
+                  const isVisible = matches(visible, laneName, index);
+                  const isPinned = matches(pinned, laneName, index);
+                  const popoverId = `mechanism-${laneName}-${index}-popover`;
+                  const popoverTitle = step.signal === "repair"
+                    ? "Ordering is repaired here"
+                    : step.signal === "loss"
+                      ? "Information loss becomes final here"
+                      : step.label;
                   return (
-                    <div className="mechanism-node" key={step.label}>
+                    <div
+                      className={`mechanism-node${isVisible ? " has-open-popover" : ""}`}
+                      key={step.label}
+                      onPointerLeave={() => setPreview(null)}
+                    >
                       <button
                         type="button"
-                        className={isActive ? "is-active" : ""}
+                        className={isVisible ? "is-active" : ""}
                         data-signal={step.signal}
-                        aria-pressed={isActive}
-                        onClick={() => select(laneName, index)}
-                        onFocus={(event) => keepFocusSelection(laneName, index, event)}
-                        onPointerEnter={(event) => keepHoverSelection(laneName, index, event)}
+                        aria-expanded={isVisible}
+                        aria-pressed={isPinned}
+                        aria-describedby={isVisible ? popoverId : undefined}
+                        onClick={() => togglePinned(laneName, index)}
+                        onFocus={(event) => previewOnFocus(laneName, index, event)}
+                        onBlur={() => setPreview(null)}
+                        onKeyDown={closePopover}
+                        onPointerEnter={(event) => previewOnHover(laneName, index, event)}
                       >
                         <span>{String(index + 1).padStart(2, "0")} · {step.phase}</span>
                         <strong>{step.label}</strong>
                         <small>{step.note}</small>
                       </button>
+                      {isVisible && (
+                        <div
+                          id={popoverId}
+                          className="mechanism-popover"
+                          data-pinned={isPinned ? "true" : "false"}
+                          role="tooltip"
+                        >
+                          <span>{laneName} · stage {index + 1}{isPinned ? " · pinned" : ""}</span>
+                          <strong>{popoverTitle}</strong>
+                          <p>{step.detail}</p>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -136,14 +177,6 @@ export default function SearchMechanism() {
             </section>
           );
         })}
-      </div>
-
-      <div className="mechanism-detail" data-lane={active.lane} aria-live="polite">
-        <div>
-          <span>{active.lane} · stage {active.index + 1}</span>
-          <strong>{selected.signal === "repair" ? "Ordering is repaired here" : selected.signal === "loss" ? "Information loss becomes final here" : selected.label}</strong>
-        </div>
-        <p>{selected.detail}</p>
       </div>
     </figure>
   );
