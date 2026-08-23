@@ -41,11 +41,6 @@
 
 .mechanism-lane.has-open-popover { z-index: 5; }
 
-.mechanism-lane[data-lane="scalar"] {
-  --lane-color: #53616a;
-  --lane-soft: #edf0f1;
-}
-
 .mechanism-lane > header {
   display: flex;
   justify-content: space-between;
@@ -57,15 +52,6 @@
 .mechanism-lane > header > div { display: flex; gap: 12px; align-items: baseline; }
 .mechanism-lane-name { color: var(--lane-color); }
 .mechanism-lane header p { margin: 0; color: var(--muted); font: 12px/1.45 var(--mono); }
-
-.mechanism-outcome {
-  padding: 5px 8px;
-  color: var(--lane-color);
-  background: var(--lane-soft);
-  border-radius: 999px;
-  font: 10px/1.35 var(--mono);
-  white-space: nowrap;
-}
 
 .mechanism-stages {
   display: grid;
@@ -179,7 +165,6 @@
 .mechanism-node:nth-child(n+3) .mechanism-popover { right: 0; left: auto; }
 .mechanism-node:nth-child(n+3) .mechanism-popover::before { right: 28px; left: auto; }
 .mechanism-popover span { color: #f09a7b; }
-.mechanism-lane[data-lane="scalar"] .mechanism-popover span { color: #b8c7cf; }
 .mechanism-popover strong { color: #fffaf5; font-size: 16px; line-height: 1.3; }
 .mechanism-popover p { margin: 0; color: #d8d2ca; font-size: 13px; line-height: 1.55; }
 
@@ -192,7 +177,6 @@
   .mechanism > figcaption,
   .mechanism-lane > header,
   .mechanism-lane > header > div { align-items: flex-start; flex-direction: column; gap: 5px; }
-  .mechanism-outcome { white-space: normal; }
   .mechanism-stages { grid-template-columns: 1fr 1fr; gap: 12px; }
   .mechanism-node:nth-child(2)::after,
   .mechanism-node:nth-child(2)::before { display: none; }

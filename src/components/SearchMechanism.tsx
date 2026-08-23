@@ -12,10 +12,9 @@ type Step = {
   signal?: "repair" | "loss";
 };
 
-const lanes: Record<LaneName, { summary: string; outcome: string; steps: Step[] }> = {
+const lanes: Record<LaneName, { summary: string; steps: Step[] }> = {
   binary: {
     summary: "Approximate retrieval, exact final ordering",
-    outcome: "Full precision restored",
     steps: [
       {
         phase: "Retrieve",
@@ -46,7 +45,6 @@ const lanes: Record<LaneName, { summary: string; outcome: string; steps: Step[] 
   },
   scalar: {
     summary: "Approximate retrieval, approximate final ordering",
-    outcome: "Precision stays compressed",
     steps: [
       {
         phase: "Retrieve",
@@ -119,7 +117,6 @@ export default function SearchMechanism() {
                   <span className="mechanism-lane-name">{laneName}</span>
                   <p>{lane.summary}</p>
                 </div>
-                <span className="mechanism-outcome">{lane.outcome}</span>
               </header>
 
               <div
