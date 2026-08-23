@@ -1,10 +1,11 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import LatencyChart from "../../components/LatencyChart";
 import QuantizationCharts from "../../components/QuantizationCharts";
 import SearchMechanism from "../../components/SearchMechanism";
 
 const title = "MongoDB Vector Search Binary Quantization at 75 Million Vectors — Justine Winata";
-const description = "A MongoDB Vector Search benchmark measuring binary and scalar quantization recall against exact nearest-neighbour ground truth across 75 million real-world embeddings.";
+const description = "A MongoDB Vector Search benchmark measuring binary and scalar quantization recall and isolated binary-search latency at 75-million scale.";
 const results = [
   { quant: "binary", nc: 360, mean: ".7094", median: ".7222", p5: ".4028" },
   { quant: "binary", nc: 720, mean: ".7940", median: ".8194", p5: ".4861" },
@@ -18,6 +19,19 @@ const results = [
   { quant: "scalar", nc: 1440, mean: ".7300", median: ".8611", p5: ".1944" },
   { quant: "scalar", nc: 4000, mean: ".7309", median: ".8611", p5: ".1944" },
   { quant: "scalar", nc: 10000, mean: ".7312", median: ".8611", p5: ".1944" },
+];
+const sourceDistribution = [
+  { network: "ARDOT · Arkansas", documents: "30,876,071", share: "41.2%", cameras: "522" },
+  { network: "Caltrans · California", documents: "16,834,275", share: "22.4%", cameras: "318" },
+  { network: "DelDOT · Delaware", documents: "11,675,979", share: "15.6%", cameras: "377" },
+  { network: "Bison Futé · France", documents: "3,992,793", share: "5.3%", cameras: "150" },
+  { network: "Weacom · Russia", documents: "3,223,126", share: "4.3%", cameras: "81" },
+  { network: "Smartech LATAM · Peru", documents: "2,634,624", share: "3.5%", cameras: "31" },
+  { network: "ITIC · Thailand", documents: "2,215,975", share: "3.0%", cameras: "44" },
+  { network: "KazToll · Kazakhstan", documents: "1,056,016", share: "1.4%", cameras: "190" },
+  { network: "SHA · Maryland", documents: "948,796", share: "1.3%", cameras: "28" },
+  { network: "KT · Kyrgyzstan", documents: "939,486", share: "1.3%", cameras: "29" },
+  { network: "Remaining hosts", documents: "603,508", share: "0.8%", cameras: "—" },
 ];
 ---
 
@@ -37,21 +51,21 @@ const results = [
           <div><span>dimensions</span><strong>512</strong></div>
           <div><span>queries</span><strong>300</strong></div>
           <div><span>metric</span><strong>recall@72</strong></div>
-          <div><span>reading time</span><strong>12 min</strong></div>
+          <div><span>reading time</span><strong>17 min</strong></div>
         </div>
         <details class="mobile-toc">
           <summary>On this page</summary>
           <nav aria-label="Article sections">
             <a href="#gap">The benchmark gap</a>
             <a href="#mechanism">How MongoDB quantization fails</a>
+            <a href="#data">Getting the data</a>
             <a href="#method">Method and ground truth</a>
             <a href="#result-controls">Interactive results</a>
             <a href="#reading">Reading the result</a>
-            <a href="#scores">Score fidelity</a>
+            <a href="#latency">Latency benchmark</a>
             <a href="#ceiling">The candidate ceiling</a>
             <a href="#storage">Resource tradeoff</a>
             <a href="#limitations">Limitations</a>
-            <a href="#recommendations">Recommendations</a>
           </nav>
         </details>
       </header>
@@ -78,8 +92,29 @@ const results = [
           <p>MongoDB’s binary path only has to retrieve a true neighbour into the candidate pool. MongoDB Vector Search then uses the retained full-precision vectors to repair its ordering. Its scalar path ranks on the approximation, so increasing the pool cannot necessarily buy back information already lost in that comparison.</p>
         </section>
 
+        <section id="data">
+          <p class="section-label">03 · Getting the data</p>
+          <h2>Seventy-five million real embeddings from public road-camera feeds</h2>
+          <p>The corpus came from public traffic-camera streams available online. It combined open HLS feeds from state transport agencies with a public catalogue of HD road cameras. Across the run, 2,126 cameras on 23 hosts contributed footage from at least nine countries.</p>
+          <p>Each stream was decoded at one frame per second. YOLO detected the vehicles in each frame, the detections were cropped, and an embedding model converted every crop into a 512-dimensional vector. Capture, detection, and embedding ran as separate stages across two hosts. Sharding camera groups over four capture processes lifted the pipeline from 5.5 to a peak of 1,104 documents per second.</p>
+          <div class="data-pipeline" aria-label="Data collection pipeline">
+            <span>public HLS streams</span><b aria-hidden="true">→</b><span>decode · 1 fps</span><b aria-hidden="true">→</b><span>YOLO · crop</span><b aria-hidden="true">→</b><span>512-d embedding</span><b aria-hidden="true">→</b><span>MongoDB</span>
+          </div>
+          <div class="corpus-table-wrap">
+            <table>
+              <caption>Corpus distribution by camera network</caption>
+              <thead><tr><th>network</th><th>documents</th><th>share</th><th>cameras</th></tr></thead>
+              <tbody>
+                {sourceDistribution.map((source) => <tr><td>{source.network}</td><td>{source.documents}</td><td>{source.share}</td><td>{source.cameras}</td></tr>)}
+              </tbody>
+              <tfoot><tr><th>total</th><th>75,000,649</th><th>100%</th><th>2,126</th></tr></tfoot>
+            </table>
+          </div>
+          <p>The collection ran for about 46 hours and produced roughly 260 GB of documents. Each record contained a normalized vehicle bounding box and a 512-dimensional embedding stored as BSON binary data.</p>
+        </section>
+
         <section id="method">
-          <p class="section-label">03 · Method</p>
+          <p class="section-label">04 · Method</p>
           <h2>Exact ground truth without 300 exhaustive MongoDB searches</h2>
           <p>The benchmark measures MongoDB Vector Search over 75 million real-world visual embeddings, anonymized here to keep the experiment independent from any product or organisation. I selected 300 fixed query vectors and stripped each query’s self-match from both the exact and approximate result sets.</p>
           <pre><code>recall@k = | top-k(approximate) ∩ top-k(exact) | / k</code></pre>
@@ -96,7 +131,7 @@ const results = [
 
       <section class="article-results" id="results">
         <div class="article-prose results-intro">
-          <p class="section-label">04 · Results</p>
+          <p class="section-label">05 · Results</p>
           <h2>More candidates rescue MongoDB binary search. They barely affect scalar.</h2>
           <p>The controls below are linked across every chart. Select one candidate setting and the mean recall and query-tail readouts update together.</p>
         </div>
@@ -107,29 +142,102 @@ const results = [
 
       <div class="article-prose">
         <section id="reading">
-          <p class="section-label">05 · Reading the result</p>
+          <p class="section-label">06 · Reading the result</p>
           <h2>The mean is only half the finding</h2>
           <p>At 360 candidates, scalar begins 1.4 recall points ahead. By 720, binary has crossed it. At 10,000 candidates, binary reaches 95.8% mean recall while scalar remains at 73.1%.</p>
           <p>The tail is more revealing. Binary’s fifth percentile rises from 40.3% to 81.9%. Scalar’s fifth percentile is exactly 19.4% at every setting. The least successful scalar queries recover the same small fraction whether the search receives 360 candidates or 10,000.</p>
           <blockquote>A floor that more search cannot lift points to information lost during ranking, not neighbours that merely need more exploration.</blockquote>
         </section>
 
-        <section id="scores">
-          <p class="section-label">06 · Score fidelity</p>
-          <h2>A failed correctness check explained the whole curve</h2>
-          <p>I compared the score MongoDB Vector Search returned for a document with the independently computed exact score for that same document. The result split sharply by quantization.</p>
-          <div class="score-comparison">
-            <div><span>binary · mean absolute error</span><strong>7.1 × 10<sup>−8</sup></strong><p>Float32 precision. Surviving candidates were reordered using their full-fidelity vectors.</p></div>
-            <div><span>scalar · mean absolute error</span><strong>3.1 × 10<sup>−3</sup></strong><p>The returned ordering still reflected the int8 approximation.</p></div>
+        <section id="latency">
+          <p class="section-label">07 · Latency benchmark</p>
+          <h2>Latency Benchmark</h2>
+          <p>The recall experiment was designed to compare correctness, not to produce a clean latency number. Binary, scalar-quantized, and unquantized index builds shared the environment while evaluation scripts generated additional CPU, memory, and I/O work. Timing those queries would have measured the research harness as much as MongoDB Vector Search.</p>
+          <p>I therefore ran latency as a separate experiment over the same 75-million-document collection. I isolated one 512-dimensional binary index, cleared the host page cache, and then accessed only that index so unrelated vector indexes would not occupy memory. This removed the cross-index cache eviction present in the earlier test setup.</p>
+
+          <div class="latency-process" aria-label="Steps used to isolate the latency benchmark">
+            <span>stop recall and build jobs</span><b aria-hidden="true">→</b><span>isolate one binary index</span><b aria-hidden="true">→</b><span>bound mongod · warm mongot</span><b aria-hidden="true">→</b><span>measure unseen queries</span>
           </div>
-          <p>This is why the candidate lever behaves asymmetrically. Each extra binary candidate is another chance to admit a true neighbour before exact rescoring. Scalar gives the same lossy comparison more work.</p>
+
+          <div class="latency-table-wrap latency-comparison">
+            <table>
+              <caption>Why the recall and latency results are separate measurements</caption>
+              <thead><tr><th>dimension</th><th>recall experiment</th><th>latency experiment</th></tr></thead>
+              <tbody>
+                <tr><td>question</td><td>Which true neighbours survive?</td><td>How long does an isolated binary query take?</td></tr>
+                <tr><td>data shape</td><td>75.0M · 512-d vectors</td><td>75.0M · one 512-d BinData vector field</td></tr>
+                <tr><td>index state</td><td>binary, scalar-quantized, and unquantized builds present</td><td>one binary index accessed in isolation</td></tr>
+                <tr><td>background work</td><td>evaluation scripts and experimental workloads</td><td>nonessential test workloads stopped</td></tr>
+                <tr><td>query shape</td><td>360–10,000 candidates · recall@72</td><td>100–10,000 candidates · no pre-filter · limit 72</td></tr>
+                <tr><td>reported result</td><td>mean and query-tail recall</td><td>p50, p95, p99, maximum, and five-second budget breaches</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>The latency host had 62.7 GB of RAM, 16 cores, and no swap. Its working configuration capped the <code>mongod</code> container at 32 GB, reduced the WiredTiger cache to 8 GB, and left <code>mongot</code> uncapped. Each of the 13 candidate settings measured 100 warm queries from previously unseen documents.</p>
+
+          <LatencyChart />
+
+          <div class="latency-table-wrap latency-results">
+            <table>
+              <caption>Selected points from the 13-setting latency sweep</caption>
+              <thead><tr><th>numCandidates</th><th>p50</th><th>p95</th><th>p99</th><th>max</th><th>over 5 s</th></tr></thead>
+              <tbody>
+                <tr><td>100</td><td>46 ms</td><td>63 ms</td><td>82 ms</td><td>82 ms</td><td>0/100</td></tr>
+                <tr><td>1,000</td><td>201 ms</td><td>229 ms</td><td>375 ms</td><td>375 ms</td><td>0/100</td></tr>
+                <tr><td>5,000</td><td>397 ms</td><td>428 ms</td><td>981 ms</td><td>981 ms</td><td>0/100</td></tr>
+                <tr><td>10,000</td><td>635 ms</td><td>668 ms</td><td>945 ms</td><td>945 ms</td><td>0/100</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p><strong>None of the 1,300 measured queries exceeded five seconds.</strong> At MongoDB’s 10,000-candidate ceiling, median latency was 635 ms—7.9× under that budget—and p95 was 668 ms. The worst observation in the full sweep was 1,082 ms at 6,000 candidates.</p>
+          <p>From 1,000 to 10,000 candidates, the median increased by 434 ms. A linear fit over that range adds 0.0481 ms per candidate, with no high-candidate inflection point. <code>mongot</code> reached 21.0 GB total and 17.5 GB of file cache, well above the roughly 8 GB predicted for the resident binary graph because rescoring also streams full-precision vectors through the cache.</p>
+          <p>This is a warm steady-state result, not a cold-start promise. It applies when the index is isolated, the memory allocation matches this setup, and the working set has been warmed.</p>
+          <blockquote>The recall curve says a wider candidate pool buys accuracy. The isolated latency run says that, once warm, the same lever remained affordable on this host.</blockquote>
         </section>
 
         <section id="ceiling">
-          <p class="section-label">07 · The 10,000-candidate ceiling</p>
+          <p class="section-label">08 · The 10,000-candidate ceiling</p>
           <h2>Can MongoDB binary quantization still be trusted?</h2>
-          <p>For this corpus and this query set: yes, with a measured operating point. The recall curve is still rising at 10,000, and its tail improves alongside its mean. There is no sign of a catastrophic ceiling at 75 million vectors.</p>
-          <p>That is deliberately narrower than saying binary recall “survives scale.” Corpus geometry can dominate corpus size. Duplicate density, embedding dimensionality, filters, result width, and the number of index segments all change how difficult it is for a 1-bit graph to retrieve the right pool.</p>
+          <p><strong>It depends. For this corpus and this query set, yes—at a measured operating point.</strong> The recall curve is still rising at 10,000 candidates, and its tail improves alongside its mean. There is no sign of a catastrophic ceiling at 75 million vectors.</p>
+          <p>The more general answer depends less on document count than on the geometry of the embedding space. By “dense,” I mean a neighbourhood with many vectors separated by very small similarity margins. In that setting, the distortion introduced by a 1-bit comparison is more likely to change which edges the ANN traversal follows. A true neighbour that never enters the candidate pool cannot be recovered by exact rescoring.</p>
+          <figure class="density-flow">
+            <figcaption>How local vector density changes the risk of binary quantization</figcaption>
+            <div class="density-case density-case-separated">
+              <div class="density-step">
+                <span>neighbourhood</span>
+                <strong>Well separated</strong>
+              </div>
+              <b class="density-arrow" aria-hidden="true">→</b>
+              <div class="density-step">
+                <span>ANN traversal</span>
+                <p>Distortion stays small relative to the similarity margins.</p>
+              </div>
+              <b class="density-arrow" aria-hidden="true">→</b>
+              <div class="density-step density-outcome">
+                <span>outcome</span>
+                <p>True neighbours are likely to reach the candidate pool.</p>
+              </div>
+            </div>
+            <div class="density-case density-case-crowded">
+              <div class="density-step">
+                <span>neighbourhood</span>
+                <strong>Dense · many near-ties</strong>
+              </div>
+              <b class="density-arrow" aria-hidden="true">→</b>
+              <div class="density-step">
+                <span>ANN traversal</span>
+                <p>The 1-bit comparison can erase fine distinctions.</p>
+              </div>
+              <b class="density-arrow" aria-hidden="true">→</b>
+              <div class="density-step density-outcome">
+                <span>outcome</span>
+                <p>True neighbours can be lost before exact rescoring.</p>
+              </div>
+            </div>
+          </figure>
+          <p>I have tested other, denser vector sets and observed lower binary recall. That does not contradict this result; it shows why trust has to be earned on the corpus being searched. When neighbourhoods are crowded, test a more accurate representation for ANN traversal as well as a wider candidate pool.</p>
           <div class="decision-grid">
             <div><strong>86.0%</strong><span>recall at 1,440 candidates</span><p>Binary is already 13.0 points ahead of scalar at this setting.</p></div>
             <div><strong>92.4%</strong><span>recall at 4,000 candidates</span><p>The first measured setting above 90% mean recall.</p></div>
@@ -138,33 +246,19 @@ const results = [
         </section>
 
         <section id="storage">
-          <p class="section-label">08 · Resource tradeoff</p>
+          <p class="section-label">09 · Resource tradeoff</p>
           <h2>MongoDB binary quantization buys search memory, not equivalent disk savings</h2>
           <p>MongoDB Vector Search’s compact 1-bit representation reduces the vector working set used by approximate search. But its automated binary quantization retains full-precision vectors for rescoring. Storage planning must account for both representations and the graph rather than assuming a 32× smaller index on disk.</p>
         </section>
 
         <section id="limitations">
-          <p class="section-label">09 · Limitations</p>
+          <p class="section-label">10 · Limitations</p>
           <h2>What this benchmark does not prove</h2>
           <ul>
-            <li><strong>No full-scale unquantized control.</strong> Recall here combines approximation and quantization effects.</li>
             <li><strong>One corpus is not a scaling law.</strong> The result does not isolate corpus size from embedding distribution.</li>
             <li><strong>No query-time filters.</strong> Selective filters can materially change graph exploration.</li>
             <li><strong>Geometric recall is not relevance.</strong> This measures nearest-neighbour fidelity, not whether a human prefers the result.</li>
           </ul>
-          <p>The strongest follow-up is a controlled scale curve: deterministic nested subsets from the same corpus, the same queries, and exact ground truth recomputed within each subset. That would isolate corpus size instead of comparing two different distributions.</p>
-        </section>
-
-        <section id="recommendations">
-          <p class="section-label">10 · Recommendations</p>
-          <h2>Benchmark the ceiling, not an extrapolation</h2>
-          <ol class="recommendations">
-            <li><strong>Measure the real result width.</strong> Recall at k=10, k=24, and k=100 are different problems.</li>
-            <li><strong>Sweep MongoDB Vector Search all the way to 10,000.</strong> If the binary curve is still climbing, the ceiling is part of the product decision.</li>
-            <li><strong>Read p5 alongside the mean.</strong> A strong average can hide a persistent population of failed queries.</li>
-            <li><strong>Use exact document overlap.</strong> Do not let quantized score differences contaminate the recall metric.</li>
-            <li><strong>Repeat with real filters and data geometry.</strong> Vendor benchmarks are starting points, not capacity plans.</li>
-          </ol>
         </section>
 
         <details class="full-results">
@@ -222,7 +316,6 @@ const results = [
   .article-meta span,
   .section-label,
   .headline-result span,
-  .score-comparison span,
   .decision-grid span { color: var(--muted); font: 10.5px/1.5 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
   .article-meta strong { font: 500 14px/1.5 var(--mono); }
   .article-prose { color: var(--body); font-size: 19px; line-height: 1.72; }
@@ -241,6 +334,17 @@ const results = [
   .headline-result > div strong { color: var(--accent); font: 500 clamp(48px, 7vw, 66px)/1 var(--mono); letter-spacing: -.06em; }
   .headline-result p { margin: 0; }
   .question-callout { padding: 20px 24px; background: #f5f1ea; border-left: 2px solid var(--accent); color: var(--ink); font-size: 21px; }
+  .data-pipeline { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: min(var(--article-wide-width), calc(100vw - var(--article-visual-gutter))); margin: 28px 0 30px 50%; padding: 16px 18px; overflow-x: auto; border: 1px solid var(--line); border-radius: 5px; background: #f7f4ef; transform: translateX(-50%); color: var(--muted); font: 10.5px/1.45 var(--mono); white-space: nowrap; }
+  .data-pipeline b { color: var(--accent); font-weight: 400; }
+  .corpus-table-wrap { width: min(var(--article-wide-width), calc(100vw - var(--article-visual-gutter))); margin: 30px 0 30px 50%; overflow-x: auto; border: 1px solid var(--line); border-radius: 5px; transform: translateX(-50%); }
+  .corpus-table-wrap table { width: 100%; border-collapse: collapse; font: 11px/1.5 var(--mono); }
+  .corpus-table-wrap caption { padding: 13px 15px; border-bottom: 1px solid var(--line); color: var(--ink); text-align: left; }
+  .corpus-table-wrap th,
+  .corpus-table-wrap td { padding: 8px 12px; border-bottom: 1px solid var(--line-soft); text-align: right; white-space: nowrap; }
+  .corpus-table-wrap th:first-child,
+  .corpus-table-wrap td:first-child { text-align: left; }
+  .corpus-table-wrap thead th { color: var(--muted); font-weight: 400; }
+  .corpus-table-wrap tfoot th { border-bottom: 0; color: var(--ink); font-weight: 600; }
   .article-results { margin-top: 86px; padding: 76px 0 28px; background: linear-gradient(180deg, #f5f2ec 0, #faf8f4 100%); border: 1px solid var(--line-soft); border-width: 1px 0; scroll-margin-top: 24px; }
   .results-intro { margin-bottom: 28px; }
   .results-controls-anchor { scroll-margin-top: 18px; }
@@ -258,7 +362,7 @@ const results = [
   .selected-result > div:first-child strong { color: var(--accent); }
   .selected-result small { color: var(--muted); font: 11px/1.5 var(--mono); }
   .selected-result p { margin: 0; color: var(--body); font-size: 16px; line-height: 1.55; }
-  .selected-result p strong { color: var(--ink); font: 600 inherit; }
+  .selected-result p strong { color: var(--ink); font-size: inherit; font-weight: 600; line-height: inherit; }
   .chart-card { margin: 22px 0 54px; padding: 28px 32px; border: 1px solid var(--line); border-radius: 6px; background: #fff; box-shadow: 0 14px 38px rgba(35, 32, 28, .045); }
   .chart-card figcaption { display: grid; gap: 4px; margin-bottom: 16px; }
   .chart-card figcaption span { color: var(--accent); font: 10px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
@@ -292,19 +396,48 @@ const results = [
   .legend-scalar::before { content: ""; display: inline-block; width: 16px; height: 2px; margin: 0 7px 3px 0; background: var(--accent); }
   .legend-scalar::before { background: repeating-linear-gradient(to right, #4d5963 0 5px, transparent 5px 8px); }
   .tail-readout strong { color: var(--ink); }
-  .score-comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: min(var(--article-wide-width), calc(100vw - var(--article-visual-gutter))); margin: 30px 0 30px 50%; transform: translateX(-50%); }
-  .score-comparison > div { padding: 22px; border: 1px solid var(--line); border-radius: 5px; }
-  .score-comparison strong { display: block; margin: 9px 0; color: var(--ink); font: 500 27px/1.2 var(--mono); letter-spacing: -.03em; }
-  .score-comparison > div:first-child strong { color: var(--accent); }
-  .score-comparison p { margin: 0; font-size: 15px; }
+  .latency-process { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: min(var(--article-wide-width), calc(100vw - var(--article-visual-gutter))); margin: 28px 0 30px 50%; padding: 16px 18px; overflow-x: auto; border: 1px solid var(--line); border-radius: 5px; background: #f7f4ef; transform: translateX(-50%); color: var(--muted); font: 10.5px/1.45 var(--mono); white-space: nowrap; }
+  .latency-process b { color: var(--accent); font-weight: 400; }
+  .latency-table-wrap { width: min(var(--article-wide-width), calc(100vw - var(--article-visual-gutter))); margin: 30px 0 30px 50%; overflow-x: auto; border: 1px solid var(--line); border-radius: 5px; transform: translateX(-50%); }
+  .latency-table-wrap table { width: 100%; border-collapse: collapse; font: 11px/1.5 var(--mono); }
+  .latency-table-wrap caption { padding: 13px 15px; border-bottom: 1px solid var(--line); color: var(--ink); text-align: left; }
+  .latency-table-wrap th,
+  .latency-table-wrap td { padding: 10px 12px; border-bottom: 1px solid var(--line-soft); text-align: left; vertical-align: top; }
+  .latency-table-wrap tbody tr:last-child td { border-bottom: 0; }
+  .latency-table-wrap th { color: var(--muted); font-weight: 400; }
+  .latency-table-wrap td:first-child { color: var(--ink); font-weight: 600; white-space: nowrap; }
+  .latency-comparison th:first-child { width: 112px; }
+  .latency-results th,
+  .latency-results td { text-align: right; white-space: nowrap; }
+  .latency-results th:first-child,
+  .latency-results td:first-child { text-align: left; }
+  .latency-chart { width: min(var(--article-wide-width), calc(100vw - var(--article-visual-gutter))); margin: 32px 0 54px 50%; transform: translateX(-50%); }
+  .chart-line-p50 { stroke: var(--accent); }
+  .chart-line-p95 { stroke: #4d5963; stroke-dasharray: 6 5; }
+  .latency-dot { stroke-width: 2; }
+  .latency-dot-p50 { fill: #fff; stroke: var(--accent); }
+  .latency-dot-p95 { fill: #fff; stroke: #4d5963; }
+  .legend-p50::before,
+  .legend-p95::before { content: ""; display: inline-block; width: 16px; height: 2px; margin: 0 7px 3px 0; background: var(--accent); }
+  .legend-p95::before { background: repeating-linear-gradient(to right, #4d5963 0 5px, transparent 5px 8px); }
+  .density-flow { width: min(var(--article-wide-width), calc(100vw - var(--article-visual-gutter))); margin: 30px 0 30px 50%; overflow: hidden; border: 1px solid var(--line); border-radius: 5px; background: #fff; transform: translateX(-50%); }
+  .density-flow figcaption { padding: 14px 17px; border-bottom: 1px solid var(--line); color: var(--ink); font: 500 12px/1.5 var(--mono); }
+  .density-case { display: grid; grid-template-columns: minmax(125px, .8fr) 18px 1fr 18px 1fr; gap: 9px; align-items: stretch; padding: 15px; }
+  .density-case + .density-case { border-top: 1px solid var(--line); }
+  .density-case-separated { background: #f6f8f4; }
+  .density-case-crowded { background: #faf4f0; }
+  .density-step { min-width: 0; padding: 13px 14px; border: 1px solid var(--line-soft); border-radius: 4px; background: rgba(255, 255, 255, .72); }
+  .density-step span { display: block; margin-bottom: 5px; color: var(--muted); font: 9.5px/1.4 var(--mono); letter-spacing: .09em; text-transform: uppercase; }
+  .density-step strong { display: block; color: var(--ink); font: 600 14px/1.4 var(--mono); }
+  .density-step p { margin: 0; color: var(--body); font-size: 13px; line-height: 1.45; }
+  .density-case-separated .density-outcome { border-color: #b8c8ae; }
+  .density-case-crowded .density-outcome { border-color: #d6b7a4; }
+  .density-arrow { align-self: center; color: var(--accent); font: 400 16px/1 var(--mono); text-align: center; }
   .decision-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: min(var(--article-wide-width), calc(100vw - var(--article-visual-gutter))); margin: 32px 0 32px 50%; transform: translateX(-50%); }
   .decision-grid > div { padding: 19px; border-top: 2px solid var(--line); background: #f7f4ef; }
   .decision-grid > div:last-child { border-top-color: var(--accent); }
   .decision-grid strong { display: block; color: var(--ink); font: 500 30px/1.2 var(--mono); }
   .decision-grid p { margin: 10px 0 0; font-size: 14px; line-height: 1.5; }
-  .recommendations { padding: 0; list-style: none; counter-reset: recommendations; }
-  .recommendations li { position: relative; margin: 0; padding: 15px 0 15px 48px; border-bottom: 1px solid var(--line-soft); counter-increment: recommendations; }
-  .recommendations li::before { content: "0" counter(recommendations); position: absolute; left: 0; top: 17px; color: var(--accent); font: 11px/1.5 var(--mono); }
   .full-results { width: min(var(--article-wide-width), calc(100vw - var(--article-visual-gutter))); margin: 74px 0 0 50%; border: 1px solid var(--line); border-radius: 5px; transform: translateX(-50%); }
   .full-results summary { padding: 16px 18px; cursor: pointer; color: var(--ink); font: 12px/1.5 var(--mono); }
   .results-table-wrap { overflow-x: auto; border-top: 1px solid var(--line); }
@@ -347,8 +480,9 @@ const results = [
     .article-meta div:last-child { grid-column: 1 / -1; }
     .mobile-toc nav { grid-template-columns: 1fr; }
     .headline-result { grid-template-columns: 1fr; gap: 18px; }
-    .score-comparison,
     .decision-grid { grid-template-columns: 1fr; }
+    .density-case { grid-template-columns: 1fr; gap: 7px; }
+    .density-arrow { transform: rotate(90deg); }
     .candidate-control { align-items: flex-start; flex-direction: column; }
     .selected-result { grid-template-columns: 1fr 1fr; }
     .selected-result p { grid-column: 1 / -1; }
