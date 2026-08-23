@@ -97,9 +97,16 @@ const sourceDistribution = [
           <h2>Seventy-five million real embeddings from public road-camera feeds</h2>
           <p>The corpus came from public traffic-camera streams available online. It combined open HLS feeds from state transport agencies with a public catalogue of HD road cameras. Across the run, 2,126 cameras on 23 hosts contributed footage from at least nine countries.</p>
           <p>Each stream was decoded at one frame per second. YOLO detected the vehicles in each frame, the detections were cropped, and an embedding model converted every crop into a 512-dimensional vector. Capture, detection, and embedding ran as separate stages across two hosts. Sharding camera groups over four capture processes lifted the pipeline from 5.5 to a peak of 1,104 documents per second.</p>
-          <div class="data-pipeline" aria-label="Data collection pipeline">
-            <span>public HLS streams</span><b aria-hidden="true">→</b><span>decode · 1 fps</span><b aria-hidden="true">→</b><span>YOLO · crop</span><b aria-hidden="true">→</b><span>512-d embedding</span><b aria-hidden="true">→</b><span>MongoDB</span>
-          </div>
+          <figure class="process-flow process-flow-data" aria-labelledby="data-pipeline-caption">
+            <figcaption id="data-pipeline-caption"><span>Collection pipeline</span><strong>From public video feeds to searchable vectors</strong></figcaption>
+            <ol>
+              <li><span>01</span><div><strong>Public HLS streams</strong><small>2,126 cameras · 23 hosts</small></div></li>
+              <li><span>02</span><div><strong>Decode frames</strong><small>Sample each stream at 1 fps</small></div></li>
+              <li><span>03</span><div><strong>Detect & crop</strong><small>YOLO isolates each vehicle</small></div></li>
+              <li><span>04</span><div><strong>Create embedding</strong><small>Convert crops into 512 dimensions</small></div></li>
+              <li><span>05</span><div><strong>Store in MongoDB</strong><small>75,000,649 searchable documents</small></div></li>
+            </ol>
+          </figure>
           <div class="corpus-table-wrap">
             <table>
               <caption>Corpus distribution by camera network</caption>
@@ -155,9 +162,15 @@ const sourceDistribution = [
           <p>The recall experiment was designed to compare correctness, not to produce a clean latency number. Binary, scalar-quantized, and unquantized index builds shared the environment while evaluation scripts generated additional CPU, memory, and I/O work. Timing those queries would have measured the research harness as much as MongoDB Vector Search.</p>
           <p>I therefore ran latency as a separate experiment over the same 75-million-document collection. I isolated one 512-dimensional binary index, cleared the host page cache, and then accessed only that index so unrelated vector indexes would not occupy memory. This removed the cross-index cache eviction present in the earlier test setup.</p>
 
-          <div class="latency-process" aria-label="Steps used to isolate the latency benchmark">
-            <span>stop recall and build jobs</span><b aria-hidden="true">→</b><span>isolate one binary index</span><b aria-hidden="true">→</b><span>bound mongod · warm mongot</span><b aria-hidden="true">→</b><span>measure unseen queries</span>
-          </div>
+          <figure class="process-flow process-flow-latency" aria-labelledby="latency-pipeline-caption">
+            <figcaption id="latency-pipeline-caption"><span>Isolation protocol</span><strong>How the latency run removed competing work</strong></figcaption>
+            <ol>
+              <li><span>01</span><div><strong>Stop other jobs</strong><small>Pause recall evaluation and index builds</small></div></li>
+              <li><span>02</span><div><strong>Isolate one index</strong><small>Keep only the binary index active</small></div></li>
+              <li><span>03</span><div><strong>Warm the system</strong><small>Bound mongod and warm mongot</small></div></li>
+              <li><span>04</span><div><strong>Measure new queries</strong><small>1,300 unseen-query observations</small></div></li>
+            </ol>
+          </figure>
 
           <p>The sweep covered 13 <code>numCandidates</code> settings from 100 to 10,000. At each setting, I ran 100 warm queries using vectors from previously unseen documents—1,300 measured queries in total. Every query passed its stored 512-dimensional BinData vector directly as <code>queryVector</code>, with no decoding, no pre-filter, and <code>limit: 72</code>.</p>
           <p>The latency host had 62.7 GB of RAM, 16 cores, and no swap. Its working configuration capped the <code>mongod</code> container at 32 GB, reduced the WiredTiger cache to 8 GB, and left <code>mongot</code> uncapped.</p>
@@ -186,8 +199,8 @@ const sourceDistribution = [
             </table>
           </div>
 
-          <p><strong>None of the 1,300 measured queries exceeded five seconds.</strong> At MongoDB’s 10,000-candidate ceiling, median latency was 635 ms—7.9× under that budget—and p95 was 668 ms. The worst observation in the full sweep was 1,082 ms at 6,000 candidates.</p>
-          <p>From 1,000 to 10,000 candidates, the median increased by 434 ms. A linear fit over that range adds 0.0481 ms per candidate, with no high-candidate inflection point. <code>mongot</code> reached 21.0 GB total and 17.5 GB of file cache, well above the roughly 8 GB predicted for the resident binary graph because rescoring also streams full-precision vectors through the cache.</p>
+          <p><strong>None of the 1,300 measured queries exceeded two seconds.</strong> At MongoDB’s 10,000-candidate ceiling, median latency was 635 ms—7.9× under that budget—and p95 was 668 ms. The worst observation in the full sweep was 1,082 ms at 6,000 candidates.</p>
+          <p>From 1,000 to 10,000 candidates, the median increased by 434 ms. A linear fit over that range adds 0.0481 ms per candidate, with no high-candidate inflection point.</p>
           <p>This is a warm steady-state result, not a cold-start promise. It applies when the index is isolated, the memory allocation matches this setup, and the working set has been warmed.</p>
           <blockquote>The recall curve says a wider candidate pool buys accuracy. The isolated latency run says that, once warm, the same lever remained affordable on this host.</blockquote>
         </section>
@@ -233,11 +246,6 @@ const sourceDistribution = [
             </div>
           </figure>
           <p>I have tested other, denser vector sets and observed lower binary recall. That does not contradict this result; it shows why trust has to be earned on the corpus being searched. When neighbourhoods are crowded, test a more accurate representation for ANN traversal as well as a wider candidate pool.</p>
-          <div class="decision-grid">
-            <div><strong>86.0%</strong><span>recall at 1,440 candidates</span><p>Binary is already 13.0 points ahead of scalar at this setting.</p></div>
-            <div><strong>92.4%</strong><span>recall at 4,000 candidates</span><p>The first measured setting above 90% mean recall.</p></div>
-            <div><strong>95.8%</strong><span>recall at 10,000 candidates</span><p>The accuracy point—and the final available candidate setting.</p></div>
-          </div>
         </section>
 
         <section id="storage">
@@ -289,7 +297,7 @@ const sourceDistribution = [
 <style is:global>
   .article-page {
     --article-reading-width: 680px;
-    --article-wide-width: 680px;
+    --article-wide-width: 980px;
     --article-inline-gutter: 48px;
     --article-visual-gutter: 64px;
     overflow: clip;
@@ -311,10 +319,9 @@ const sourceDistribution = [
   .article-meta span,
   .section-label,
   .headline-result span,
-  .decision-grid span { color: var(--muted); font: 10.5px/1.5 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
   .article-meta strong { font: 500 14px/1.5 var(--mono); }
   .article-prose { color: var(--body); font-size: 19px; line-height: 1.72; }
-  .article-prose section { margin-top: 74px; scroll-margin-top: 24px; }
+  .article-prose section { margin-top: 24px; scroll-margin-top: 24px; }
   .article-prose h2,
   .results-intro h2 { margin: 7px 0 20px; color: var(--ink); font-size: clamp(28px, 4vw, 38px); line-height: 1.16; letter-spacing: -.025em; }
   .article-prose p { margin: 18px 0; }
@@ -329,8 +336,19 @@ const sourceDistribution = [
   .headline-result > div strong { color: var(--accent); font: 500 clamp(48px, 7vw, 66px)/1 var(--mono); letter-spacing: -.06em; }
   .headline-result p { margin: 0; }
   .question-callout { padding: 20px 24px; background: #f5f1ea; border-left: 2px solid var(--accent); color: var(--ink); font-size: 21px; }
-  .data-pipeline { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: min(var(--article-wide-width), calc(100vw - var(--article-visual-gutter))); margin: 28px 0 30px 50%; padding: 16px 18px; overflow-x: auto; border: 1px solid var(--line); border-radius: 5px; background: #f7f4ef; transform: translateX(-50%); color: var(--muted); font: 10.5px/1.45 var(--mono); white-space: nowrap; }
-  .data-pipeline b { color: var(--accent); font-weight: 400; }
+  .process-flow { width: min(var(--article-wide-width), calc(100vw - var(--article-visual-gutter))); margin: 30px 0 34px 50%; padding: 22px; border: 1px solid var(--line); border-radius: 12px; background: #fff; box-shadow: 0 14px 38px rgba(35, 32, 28, .045); transform: translateX(-50%); }
+  .process-flow figcaption { display: grid; gap: 3px; margin-bottom: 17px; }
+  .process-flow figcaption span { color: var(--accent); font: 500 10px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+  .process-flow figcaption strong { color: var(--ink); font-size: 18px; line-height: 1.35; }
+  .process-flow ol { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 22px; margin: 0; padding: 0; list-style: none; }
+  .process-flow li { position: relative; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; min-width: 0; padding: 14px 13px; border: 1px solid var(--line-soft); border-radius: 7px; background: #faf8f4; }
+  .process-flow li > span { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #f3ded6; color: var(--accent-dark); font: 500 9.5px/1 var(--mono); }
+  .process-flow li div { min-width: 0; }
+  .process-flow li strong { display: block; color: var(--ink); font: 500 12px/1.4 var(--mono); }
+  .process-flow li small { display: block; margin-top: 4px; color: var(--muted); font-size: 11.5px; line-height: 1.4; }
+  .process-flow li:not(:last-child)::after { content: ""; position: absolute; z-index: 1; top: 50%; left: calc(100% + 6px); width: 10px; height: 10px; border: 1px solid var(--accent); border-width: 1px 1px 0 0; transform: translateY(-50%) rotate(45deg); }
+  .process-flow-latency ol { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .process-flow-latency li > span { background: #e9ecee; color: #4d5963; }
   .corpus-table-wrap { width: min(var(--article-wide-width), calc(100vw - var(--article-visual-gutter))); margin: 30px 0 30px 50%; overflow-x: auto; border: 1px solid var(--line); border-radius: 5px; transform: translateX(-50%); }
   .corpus-table-wrap table { width: 100%; border-collapse: collapse; font: 11px/1.5 var(--mono); }
   .corpus-table-wrap caption { padding: 13px 15px; border-bottom: 1px solid var(--line); color: var(--ink); text-align: left; }
@@ -391,8 +409,6 @@ const sourceDistribution = [
   .legend-scalar::before { content: ""; display: inline-block; width: 16px; height: 2px; margin: 0 7px 3px 0; background: var(--accent); }
   .legend-scalar::before { background: repeating-linear-gradient(to right, #4d5963 0 5px, transparent 5px 8px); }
   .tail-readout strong { color: var(--ink); }
-  .latency-process { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: min(var(--article-wide-width), calc(100vw - var(--article-visual-gutter))); margin: 28px 0 30px 50%; padding: 16px 18px; overflow-x: auto; border: 1px solid var(--line); border-radius: 5px; background: #f7f4ef; transform: translateX(-50%); color: var(--muted); font: 10.5px/1.45 var(--mono); white-space: nowrap; }
-  .latency-process b { color: var(--accent); font-weight: 400; }
   .latency-table-wrap { width: min(var(--article-wide-width), calc(100vw - var(--article-visual-gutter))); margin: 30px 0 30px 50%; overflow-x: auto; border: 1px solid var(--line); border-radius: 5px; transform: translateX(-50%); }
   .latency-table-wrap table { width: 100%; border-collapse: collapse; font: 11px/1.5 var(--mono); }
   .latency-table-wrap caption { padding: 13px 15px; border-bottom: 1px solid var(--line); color: var(--ink); text-align: left; }
@@ -428,11 +444,6 @@ const sourceDistribution = [
   .density-case-separated .density-outcome { border-color: #b8c8ae; }
   .density-case-crowded .density-outcome { border-color: #d6b7a4; }
   .density-arrow { align-self: center; color: var(--accent); font: 400 16px/1 var(--mono); text-align: center; }
-  .decision-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: min(var(--article-wide-width), calc(100vw - var(--article-visual-gutter))); margin: 32px 0 32px 50%; transform: translateX(-50%); }
-  .decision-grid > div { padding: 19px; border-top: 2px solid var(--line); background: #f7f4ef; }
-  .decision-grid > div:last-child { border-top-color: var(--accent); }
-  .decision-grid strong { display: block; color: var(--ink); font: 500 30px/1.2 var(--mono); }
-  .decision-grid p { margin: 10px 0 0; font-size: 14px; line-height: 1.5; }
   .full-results { width: min(var(--article-wide-width), calc(100vw - var(--article-visual-gutter))); margin: 74px 0 0 50%; border: 1px solid var(--line); border-radius: 5px; transform: translateX(-50%); }
   .full-results summary { padding: 16px 18px; cursor: pointer; color: var(--ink); font: 12px/1.5 var(--mono); }
   .results-table-wrap { overflow-x: auto; border-top: 1px solid var(--line); }
@@ -475,7 +486,11 @@ const sourceDistribution = [
     .article-meta div:last-child { grid-column: 1 / -1; }
     .mobile-toc nav { grid-template-columns: 1fr; }
     .headline-result { grid-template-columns: 1fr; gap: 18px; }
-    .decision-grid { grid-template-columns: 1fr; }
+    .process-flow { padding: 17px; border-radius: 9px; box-shadow: none; }
+    .process-flow ol,
+    .process-flow-latency ol { grid-template-columns: 1fr; gap: 18px; }
+    .process-flow li { min-height: 74px; }
+    .process-flow li:not(:last-child)::after { top: calc(100% + 4px); left: 26px; transform: rotate(135deg); }
     .density-case { grid-template-columns: 1fr; gap: 7px; }
     .density-arrow { transform: rotate(90deg); }
     .candidate-control { align-items: flex-start; flex-direction: column; }
