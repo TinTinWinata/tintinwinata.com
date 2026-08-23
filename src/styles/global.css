@@ -453,7 +453,7 @@ section > p { color: var(--body); }
 
 .process-step {
   display: grid;
-  grid-template-columns: 30px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
   min-width: 0;
   min-height: 92px;
