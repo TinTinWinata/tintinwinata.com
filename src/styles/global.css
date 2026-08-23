@@ -410,6 +410,87 @@ section > p { color: var(--body); }
 
 .education-copy { margin: 0; }
 
+/* Article process diagrams live here so their visual treatment is always loaded
+   with the base layout, including on static and cached article routes. */
+.process-flow {
+  width: min(var(--article-wide-width, 980px), calc(100vw - var(--article-visual-gutter, 64px)));
+  margin: 30px 0 34px 50%;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 14px 38px rgba(35, 32, 28, .045);
+  transform: translateX(-50%);
+}
+
+.process-flow figcaption {
+  display: grid;
+  gap: 3px;
+  margin-bottom: 17px;
+}
+
+.process-flow figcaption span {
+  color: var(--accent);
+  font: 500 10px/1.4 var(--mono);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.process-flow figcaption strong {
+  color: var(--ink);
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+.process-flow-track {
+  display: grid;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.process-flow-track-5 { grid-template-columns: repeat(4, minmax(0, 1fr) 18px) minmax(0, 1fr); }
+.process-flow-track-4 { grid-template-columns: repeat(3, minmax(0, 1fr) 18px) minmax(0, 1fr); }
+
+.process-step {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 10px;
+  min-width: 0;
+  min-height: 92px;
+  padding: 14px 13px;
+  border: 1px solid var(--line-soft);
+  border-radius: 7px;
+  background: #faf8f4;
+}
+
+.process-step > span {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #f3ded6;
+  color: var(--accent-dark);
+  font: 500 9.5px/1 var(--mono);
+}
+
+.process-step div { min-width: 0; }
+.process-step strong { display: block; color: var(--ink); font: 500 12px/1.4 var(--mono); }
+.process-step small { display: block; margin-top: 4px; color: var(--muted); font-size: 11.5px; line-height: 1.4; }
+.process-connector { align-self: center; color: var(--accent); font: 400 16px/1 var(--mono); text-align: center; }
+.process-flow-latency .process-step > span { background: #e9ecee; color: #4d5963; }
+
+@media (max-width: 900px) {
+  .process-flow-track-5,
+  .process-flow-track-4 { grid-template-columns: 1fr; gap: 7px; }
+  .process-step { min-height: 74px; }
+  .process-connector { transform: rotate(90deg); }
+}
+
+@media (max-width: 720px) {
+  .process-flow { padding: 17px; border-radius: 9px; box-shadow: none; }
+}
+
 
 footer {
   display: flex;

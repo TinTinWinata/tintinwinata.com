@@ -99,13 +99,17 @@ const sourceDistribution = [
           <p>Each stream was decoded at one frame per second. YOLO detected the vehicles in each frame, the detections were cropped, and an embedding model converted every crop into a 512-dimensional vector. Capture, detection, and embedding ran as separate stages across two hosts. Sharding camera groups over four capture processes lifted the pipeline from 5.5 to a peak of 1,104 documents per second.</p>
           <figure class="process-flow process-flow-data" aria-labelledby="data-pipeline-caption">
             <figcaption id="data-pipeline-caption"><span>Collection pipeline</span><strong>From public video feeds to searchable vectors</strong></figcaption>
-            <ol>
-              <li><span>01</span><div><strong>Public HLS streams</strong><small>2,126 cameras · 23 hosts</small></div></li>
-              <li><span>02</span><div><strong>Decode frames</strong><small>Sample each stream at 1 fps</small></div></li>
-              <li><span>03</span><div><strong>Detect & crop</strong><small>YOLO isolates each vehicle</small></div></li>
-              <li><span>04</span><div><strong>Create embedding</strong><small>Convert crops into 512 dimensions</small></div></li>
-              <li><span>05</span><div><strong>Store in MongoDB</strong><small>75,000,649 searchable documents</small></div></li>
-            </ol>
+            <div class="process-flow-track process-flow-track-5" role="list">
+              <div class="process-step" role="listitem"><span>01</span><div><strong>Public HLS streams</strong><small>2,126 cameras · 23 hosts</small></div></div>
+              <b class="process-connector" aria-hidden="true">→</b>
+              <div class="process-step" role="listitem"><span>02</span><div><strong>Decode frames</strong><small>Sample each stream at 1 fps</small></div></div>
+              <b class="process-connector" aria-hidden="true">→</b>
+              <div class="process-step" role="listitem"><span>03</span><div><strong>Detect & crop</strong><small>YOLO isolates each vehicle</small></div></div>
+              <b class="process-connector" aria-hidden="true">→</b>
+              <div class="process-step" role="listitem"><span>04</span><div><strong>Create embedding</strong><small>Convert crops into 512 dimensions</small></div></div>
+              <b class="process-connector" aria-hidden="true">→</b>
+              <div class="process-step" role="listitem"><span>05</span><div><strong>Store in MongoDB</strong><small>75,000,649 searchable documents</small></div></div>
+            </div>
           </figure>
           <div class="corpus-table-wrap">
             <table>
@@ -164,39 +168,44 @@ const sourceDistribution = [
 
           <figure class="process-flow process-flow-latency" aria-labelledby="latency-pipeline-caption">
             <figcaption id="latency-pipeline-caption"><span>Isolation protocol</span><strong>How the latency run removed competing work</strong></figcaption>
-            <ol>
-              <li><span>01</span><div><strong>Stop other jobs</strong><small>Pause recall evaluation and index builds</small></div></li>
-              <li><span>02</span><div><strong>Isolate one index</strong><small>Keep only the binary index active</small></div></li>
-              <li><span>03</span><div><strong>Warm the system</strong><small>Bound mongod and warm mongot</small></div></li>
-              <li><span>04</span><div><strong>Measure new queries</strong><small>1,300 unseen-query observations</small></div></li>
-            </ol>
+            <div class="process-flow-track process-flow-track-4" role="list">
+              <div class="process-step" role="listitem"><span>01</span><div><strong>Stop other jobs</strong><small>Pause recall evaluation and index builds</small></div></div>
+              <b class="process-connector" aria-hidden="true">→</b>
+              <div class="process-step" role="listitem"><span>02</span><div><strong>Isolate one index</strong><small>Keep only the binary index active</small></div></div>
+              <b class="process-connector" aria-hidden="true">→</b>
+              <div class="process-step" role="listitem"><span>03</span><div><strong>Warm the system</strong><small>Bound mongod and warm mongot</small></div></div>
+              <b class="process-connector" aria-hidden="true">→</b>
+              <div class="process-step" role="listitem"><span>04</span><div><strong>Measure new queries</strong><small>1,300 unseen-query observations</small></div></div>
+            </div>
           </figure>
 
           <p>The sweep covered 13 <code>numCandidates</code> settings from 100 to 10,000. At each setting, I ran 100 warm queries using vectors from previously unseen documents—1,300 measured queries in total. Every query passed its stored 512-dimensional BinData vector directly as <code>queryVector</code>, with no decoding, no pre-filter, and <code>limit: 72</code>.</p>
           <p>The latency host had 62.7 GB of RAM, 16 cores, and no swap. Its working configuration capped the <code>mongod</code> container at 32 GB, reduced the WiredTiger cache to 8 GB, and left <code>mongot</code> uncapped.</p>
 
-          <LatencyChart client:load />
+          <div class="latency-results-surface">
+            <LatencyChart client:load />
 
-          <div class="latency-table-wrap latency-results">
-            <table>
-              <caption>Full 13-setting latency sweep</caption>
-              <thead><tr><th>numCandidates</th><th>p50</th><th>p95</th><th>p99</th><th>max</th></tr></thead>
-              <tbody>
-                <tr><td>100</td><td>46 ms</td><td>63 ms</td><td>82 ms</td><td>82 ms</td></tr>
-                <tr><td>360</td><td>176 ms</td><td>210 ms</td><td>268 ms</td><td>268 ms</td></tr>
-                <tr><td>720</td><td>198 ms</td><td>265 ms</td><td>730 ms</td><td>730 ms</td></tr>
-                <tr><td>1,000</td><td>201 ms</td><td>229 ms</td><td>375 ms</td><td>375 ms</td></tr>
-                <tr><td>2,000</td><td>255 ms</td><td>278 ms</td><td>387 ms</td><td>387 ms</td></tr>
-                <tr><td>3,000</td><td>299 ms</td><td>322 ms</td><td>400 ms</td><td>400 ms</td></tr>
-                <tr><td>4,000</td><td>346 ms</td><td>373 ms</td><td>407 ms</td><td>407 ms</td></tr>
-                <tr><td>5,000</td><td>397 ms</td><td>428 ms</td><td>981 ms</td><td>981 ms</td></tr>
-                <tr><td>6,000</td><td>446 ms</td><td>477 ms</td><td>1,082 ms</td><td>1,082 ms</td></tr>
-                <tr><td>7,000</td><td>494 ms</td><td>530 ms</td><td>723 ms</td><td>723 ms</td></tr>
-                <tr><td>8,000</td><td>537 ms</td><td>575 ms</td><td>608 ms</td><td>608 ms</td></tr>
-                <tr><td>9,000</td><td>591 ms</td><td>637 ms</td><td>984 ms</td><td>984 ms</td></tr>
-                <tr><td>10,000</td><td>635 ms</td><td>668 ms</td><td>945 ms</td><td>945 ms</td></tr>
-              </tbody>
-            </table>
+            <div class="latency-table-wrap latency-results">
+              <table>
+                <caption>Full 13-setting latency sweep</caption>
+                <thead><tr><th>numCandidates</th><th>p50</th><th>p95</th><th>p99</th><th>max</th></tr></thead>
+                <tbody>
+                  <tr><td>100</td><td>46 ms</td><td>63 ms</td><td>82 ms</td><td>82 ms</td></tr>
+                  <tr><td>360</td><td>176 ms</td><td>210 ms</td><td>268 ms</td><td>268 ms</td></tr>
+                  <tr><td>720</td><td>198 ms</td><td>265 ms</td><td>730 ms</td><td>730 ms</td></tr>
+                  <tr><td>1,000</td><td>201 ms</td><td>229 ms</td><td>375 ms</td><td>375 ms</td></tr>
+                  <tr><td>2,000</td><td>255 ms</td><td>278 ms</td><td>387 ms</td><td>387 ms</td></tr>
+                  <tr><td>3,000</td><td>299 ms</td><td>322 ms</td><td>400 ms</td><td>400 ms</td></tr>
+                  <tr><td>4,000</td><td>346 ms</td><td>373 ms</td><td>407 ms</td><td>407 ms</td></tr>
+                  <tr><td>5,000</td><td>397 ms</td><td>428 ms</td><td>981 ms</td><td>981 ms</td></tr>
+                  <tr><td>6,000</td><td>446 ms</td><td>477 ms</td><td>1,082 ms</td><td>1,082 ms</td></tr>
+                  <tr><td>7,000</td><td>494 ms</td><td>530 ms</td><td>723 ms</td><td>723 ms</td></tr>
+                  <tr><td>8,000</td><td>537 ms</td><td>575 ms</td><td>608 ms</td><td>608 ms</td></tr>
+                  <tr><td>9,000</td><td>591 ms</td><td>637 ms</td><td>984 ms</td><td>984 ms</td></tr>
+                  <tr><td>10,000</td><td>635 ms</td><td>668 ms</td><td>945 ms</td><td>945 ms</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
 
           <p><strong>None of the 1,300 measured queries exceeded two seconds.</strong> At MongoDB’s 10,000-candidate ceiling, median latency was 635 ms—7.9× under that budget—and p95 was 668 ms. The worst observation in the full sweep was 1,082 ms at 6,000 candidates.</p>
@@ -336,19 +345,6 @@ const sourceDistribution = [
   .headline-result > div strong { color: var(--accent); font: 500 clamp(48px, 7vw, 66px)/1 var(--mono); letter-spacing: -.06em; }
   .headline-result p { margin: 0; }
   .question-callout { padding: 20px 24px; background: #f5f1ea; border-left: 2px solid var(--accent); color: var(--ink); font-size: 21px; }
-  .process-flow { width: min(var(--article-wide-width), calc(100vw - var(--article-visual-gutter))); margin: 30px 0 34px 50%; padding: 22px; border: 1px solid var(--line); border-radius: 12px; background: #fff; box-shadow: 0 14px 38px rgba(35, 32, 28, .045); transform: translateX(-50%); }
-  .process-flow figcaption { display: grid; gap: 3px; margin-bottom: 17px; }
-  .process-flow figcaption span { color: var(--accent); font: 500 10px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
-  .process-flow figcaption strong { color: var(--ink); font-size: 18px; line-height: 1.35; }
-  .process-flow ol { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 22px; margin: 0; padding: 0; list-style: none; }
-  .process-flow li { position: relative; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; min-width: 0; padding: 14px 13px; border: 1px solid var(--line-soft); border-radius: 7px; background: #faf8f4; }
-  .process-flow li > span { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #f3ded6; color: var(--accent-dark); font: 500 9.5px/1 var(--mono); }
-  .process-flow li div { min-width: 0; }
-  .process-flow li strong { display: block; color: var(--ink); font: 500 12px/1.4 var(--mono); }
-  .process-flow li small { display: block; margin-top: 4px; color: var(--muted); font-size: 11.5px; line-height: 1.4; }
-  .process-flow li:not(:last-child)::after { content: ""; position: absolute; z-index: 1; top: 50%; left: calc(100% + 6px); width: 10px; height: 10px; border: 1px solid var(--accent); border-width: 1px 1px 0 0; transform: translateY(-50%) rotate(45deg); }
-  .process-flow-latency ol { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .process-flow-latency li > span { background: #e9ecee; color: #4d5963; }
   .corpus-table-wrap { width: min(var(--article-wide-width), calc(100vw - var(--article-visual-gutter))); margin: 30px 0 30px 50%; overflow-x: auto; border: 1px solid var(--line); border-radius: 5px; transform: translateX(-50%); }
   .corpus-table-wrap table { width: 100%; border-collapse: collapse; font: 11px/1.5 var(--mono); }
   .corpus-table-wrap caption { padding: 13px 15px; border-bottom: 1px solid var(--line); color: var(--ink); text-align: left; }
@@ -409,6 +405,9 @@ const sourceDistribution = [
   .legend-scalar::before { content: ""; display: inline-block; width: 16px; height: 2px; margin: 0 7px 3px 0; background: var(--accent); }
   .legend-scalar::before { background: repeating-linear-gradient(to right, #4d5963 0 5px, transparent 5px 8px); }
   .tail-readout strong { color: var(--ink); }
+  .latency-results-surface { width: min(var(--article-wide-width), calc(100vw - var(--article-visual-gutter))); margin: 32px 0 46px 50%; padding: 22px; background: linear-gradient(180deg, #f5f2ec 0, #faf8f4 100%); border: 1px solid var(--line-soft); border-radius: 8px; transform: translateX(-50%); }
+  .latency-results-surface .latency-chart { width: 100%; margin: 0 0 18px; transform: none; }
+  .latency-results-surface .latency-table-wrap { width: 100%; margin: 0; background: #fff; transform: none; }
   .latency-table-wrap { width: min(var(--article-wide-width), calc(100vw - var(--article-visual-gutter))); margin: 30px 0 30px 50%; overflow-x: auto; border: 1px solid var(--line); border-radius: 5px; transform: translateX(-50%); }
   .latency-table-wrap table { width: 100%; border-collapse: collapse; font: 11px/1.5 var(--mono); }
   .latency-table-wrap caption { padding: 13px 15px; border-bottom: 1px solid var(--line); color: var(--ink); text-align: left; }
@@ -486,16 +485,12 @@ const sourceDistribution = [
     .article-meta div:last-child { grid-column: 1 / -1; }
     .mobile-toc nav { grid-template-columns: 1fr; }
     .headline-result { grid-template-columns: 1fr; gap: 18px; }
-    .process-flow { padding: 17px; border-radius: 9px; box-shadow: none; }
-    .process-flow ol,
-    .process-flow-latency ol { grid-template-columns: 1fr; gap: 18px; }
-    .process-flow li { min-height: 74px; }
-    .process-flow li:not(:last-child)::after { top: calc(100% + 4px); left: 26px; transform: rotate(135deg); }
     .density-case { grid-template-columns: 1fr; gap: 7px; }
     .density-arrow { transform: rotate(90deg); }
     .candidate-control { align-items: flex-start; flex-direction: column; }
     .selected-result { grid-template-columns: 1fr 1fr; }
     .selected-result p { grid-column: 1 / -1; }
+    .latency-results-surface { padding: 10px; }
     .chart-card { margin-bottom: 36px; padding: 18px 14px; box-shadow: none; }
     .article-results { padding-top: 60px; }
     .article-prose section { margin-top: 62px; }
