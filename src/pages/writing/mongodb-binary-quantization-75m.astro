@@ -162,7 +162,7 @@ const sourceDistribution = [
           <p>The sweep covered 13 <code>numCandidates</code> settings from 100 to 10,000. At each setting, I ran 100 warm queries using vectors from previously unseen documents—1,300 measured queries in total. Every query passed its stored 512-dimensional BinData vector directly as <code>queryVector</code>, with no decoding, no pre-filter, and <code>limit: 72</code>.</p>
           <p>The latency host had 62.7 GB of RAM, 16 cores, and no swap. Its working configuration capped the <code>mongod</code> container at 32 GB, reduced the WiredTiger cache to 8 GB, and left <code>mongot</code> uncapped.</p>
 
-          <LatencyChart />
+          <LatencyChart client:load />
 
           <div class="latency-table-wrap latency-results">
             <table>
@@ -399,9 +399,10 @@ const sourceDistribution = [
   .latency-chart { width: min(var(--article-wide-width), calc(100vw - var(--article-visual-gutter))); margin: 32px 0 54px 50%; transform: translateX(-50%); }
   .chart-line-p50 { stroke: var(--accent); }
   .chart-line-p95 { stroke: #4d5963; stroke-dasharray: 6 5; }
-  .latency-dot { stroke-width: 2; }
+  .latency-dot { stroke-width: 2; transition: r .15s ease, stroke-width .15s ease; }
   .latency-dot-p50 { fill: #fff; stroke: var(--accent); }
   .latency-dot-p95 { fill: #fff; stroke: #4d5963; }
+  .latency-dot.is-selected { fill: var(--paper); stroke-width: 3.5; }
   .legend-p50::before,
   .legend-p95::before { content: ""; display: inline-block; width: 16px; height: 2px; margin: 0 7px 3px 0; background: var(--accent); }
   .legend-p95::before { background: repeating-linear-gradient(to right, #4d5963 0 5px, transparent 5px 8px); }
