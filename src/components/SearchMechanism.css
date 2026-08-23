@@ -31,6 +31,7 @@
   --lane-color: var(--accent);
   --lane-soft: #f8e9e3;
   position: relative;
+  margin-top: 0;
   padding: 19px 20px 22px;
   overflow: visible;
   background: #fff;
