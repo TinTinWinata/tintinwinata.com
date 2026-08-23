@@ -159,22 +159,8 @@ const sourceDistribution = [
             <span>stop recall and build jobs</span><b aria-hidden="true">→</b><span>isolate one binary index</span><b aria-hidden="true">→</b><span>bound mongod · warm mongot</span><b aria-hidden="true">→</b><span>measure unseen queries</span>
           </div>
 
-          <div class="latency-table-wrap latency-comparison">
-            <table>
-              <caption>Why the recall and latency results are separate measurements</caption>
-              <thead><tr><th>dimension</th><th>recall experiment</th><th>latency experiment</th></tr></thead>
-              <tbody>
-                <tr><td>question</td><td>Which true neighbours survive?</td><td>How long does an isolated binary query take?</td></tr>
-                <tr><td>data shape</td><td>75.0M · 512-d vectors</td><td>75.0M · one 512-d BinData vector field</td></tr>
-                <tr><td>index state</td><td>binary, scalar-quantized, and unquantized builds present</td><td>one binary index accessed in isolation</td></tr>
-                <tr><td>background work</td><td>evaluation scripts and experimental workloads</td><td>nonessential test workloads stopped</td></tr>
-                <tr><td>query shape</td><td>360–10,000 candidates · recall@72</td><td>100–10,000 candidates · no pre-filter · limit 72</td></tr>
-                <tr><td>reported result</td><td>mean and query-tail recall</td><td>p50, p95, p99, maximum, and five-second budget breaches</td></tr>
-              </tbody>
-            </table>
-          </div>
-
-          <p>The latency host had 62.7 GB of RAM, 16 cores, and no swap. Its working configuration capped the <code>mongod</code> container at 32 GB, reduced the WiredTiger cache to 8 GB, and left <code>mongot</code> uncapped. Each of the 13 candidate settings measured 100 warm queries from previously unseen documents.</p>
+          <p>The sweep covered 13 <code>numCandidates</code> settings from 100 to 10,000. At each setting, I ran 100 warm queries using vectors from previously unseen documents—1,300 measured queries in total. Every query passed its stored 512-dimensional BinData vector directly as <code>queryVector</code>, with no decoding, no pre-filter, and <code>limit: 72</code>.</p>
+          <p>The latency host had 62.7 GB of RAM, 16 cores, and no swap. Its working configuration capped the <code>mongod</code> container at 32 GB, reduced the WiredTiger cache to 8 GB, and left <code>mongot</code> uncapped.</p>
 
           <LatencyChart />
 
@@ -406,7 +392,6 @@ const sourceDistribution = [
   .latency-table-wrap tbody tr:last-child td { border-bottom: 0; }
   .latency-table-wrap th { color: var(--muted); font-weight: 400; }
   .latency-table-wrap td:first-child { color: var(--ink); font-weight: 600; white-space: nowrap; }
-  .latency-comparison th:first-child { width: 112px; }
   .latency-results th,
   .latency-results td { text-align: right; white-space: nowrap; }
   .latency-results th:first-child,
