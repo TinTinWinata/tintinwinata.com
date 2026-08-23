@@ -1,4 +1,4 @@
-import { useState, type FocusEvent, type KeyboardEvent, type PointerEvent } from "react";
+import { useState, type CSSProperties, type FocusEvent, type KeyboardEvent, type PointerEvent } from "react";
 import "./SearchMechanism.css";
 
 type LaneName = "binary" | "scalar";
@@ -79,8 +79,6 @@ export default function SearchMechanism() {
   const [preview, setPreview] = useState<Selection | null>(null);
   const [pinned, setPinned] = useState<Selection | null>(null);
   const visible = preview ?? pinned;
-  const visibleStep = visible ? lanes[visible.lane].steps[visible.index] : null;
-  const inspectorId = "mechanism-inspector";
 
   const matches = (selection: Selection | null, lane: LaneName, index: number) =>
     selection?.lane === lane && selection.index === index;
@@ -94,7 +92,7 @@ export default function SearchMechanism() {
     setPreview(null);
     setPinned((current) => matches(current, lane, index) ? null : { lane, index });
   };
-  const clearSelection = (event: KeyboardEvent<HTMLButtonElement>) => {
+  const closePopover = (event: KeyboardEvent<HTMLButtonElement>) => {
     if (event.key !== "Escape") return;
     setPreview(null);
     setPinned(null);
@@ -105,14 +103,14 @@ export default function SearchMechanism() {
     <figure className="mechanism" aria-labelledby="mechanism-caption">
       <figcaption id="mechanism-caption">
         <span>Hover or click for a quick explanation.</span>
-        <small>Both paths retrieve approximately. The decisive difference appears at stage three.</small>
       </figcaption>
 
       <div className="mechanism-lanes">
         {(Object.keys(lanes) as LaneName[]).map((laneName) => {
           const lane = lanes[laneName];
+          const laneHasPopover = visible?.lane === laneName;
           return (
-            <section className="mechanism-lane" data-lane={laneName} key={laneName} aria-label={`${laneName} quantization path`}>
+            <section className={`mechanism-lane${laneHasPopover ? " has-open-popover" : ""}`} data-lane={laneName} key={laneName} aria-label={`${laneName} quantization path`}>
               <header>
                 <div>
                   <span className="mechanism-lane-name">{laneName}</span>
@@ -120,13 +118,22 @@ export default function SearchMechanism() {
                 </div>
               </header>
 
-              <div className="mechanism-stages">
+              <div
+                className="mechanism-stages"
+                style={{ "--active-step": visible?.lane === laneName ? visible.index : -1 } as CSSProperties}
+              >
                 {lane.steps.map((step, index) => {
                   const isVisible = matches(visible, laneName, index);
                   const isPinned = matches(pinned, laneName, index);
+                  const popoverId = `mechanism-${laneName}-${index}-popover`;
+                  const popoverTitle = step.signal === "repair"
+                    ? "Ordering is repaired here"
+                    : step.signal === "loss"
+                      ? "Information loss becomes final here"
+                      : step.label;
                   return (
                     <div
-                      className="mechanism-node"
+                      className={`mechanism-node${isVisible ? " has-open-popover" : ""}`}
                       key={step.label}
                       onPointerLeave={() => setPreview(null)}
                     >
@@ -136,18 +143,29 @@ export default function SearchMechanism() {
                         data-signal={step.signal}
                         aria-expanded={isVisible}
                         aria-pressed={isPinned}
-                        aria-controls={inspectorId}
-                        aria-describedby={isVisible ? inspectorId : undefined}
+                        aria-describedby={isVisible ? popoverId : undefined}
                         onClick={() => togglePinned(laneName, index)}
                         onFocus={(event) => previewOnFocus(laneName, index, event)}
                         onBlur={() => setPreview(null)}
-                        onKeyDown={clearSelection}
+                        onKeyDown={closePopover}
                         onPointerEnter={(event) => previewOnHover(laneName, index, event)}
                       >
                         <span>{String(index + 1).padStart(2, "0")} · {step.phase}</span>
                         <strong>{step.label}</strong>
                         <small>{step.note}</small>
                       </button>
+                      {isVisible && (
+                        <div
+                          id={popoverId}
+                          className="mechanism-popover"
+                          data-pinned={isPinned ? "true" : "false"}
+                          role="tooltip"
+                        >
+                          <span>{laneName} · stage {index + 1}{isPinned ? " · pinned" : ""}</span>
+                          <strong>{popoverTitle}</strong>
+                          <p>{step.detail}</p>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -155,21 +173,6 @@ export default function SearchMechanism() {
             </section>
           );
         })}
-      </div>
-
-      <div id={inspectorId} className={`mechanism-inspector${visible && visibleStep ? " is-active" : ""}`} aria-live="polite">
-        {visible && visibleStep ? (
-          <>
-            <div className="mechanism-inspector-copy">
-              <span>{visible.lane} path · stage {visible.index + 1}{matches(pinned, visible.lane, visible.index) ? " · selected" : ""}</span>
-              <strong>{visibleStep.signal === "repair" ? "Ordering is repaired here" : visibleStep.signal === "loss" ? "Information loss becomes final here" : visibleStep.label}</strong>
-              <p>{visibleStep.detail}</p>
-            </div>
-            {pinned && <button type="button" onClick={() => setPinned(null)}>Clear selection</button>}
-          </>
-        ) : (
-          <p><strong>Select a stage</strong> to see what MongoDB is doing at that point in the search.</p>
-        )}
       </div>
     </figure>
   );
