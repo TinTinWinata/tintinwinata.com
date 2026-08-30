@@ -123,7 +123,6 @@ export const earlierProjects = [
 ];
 
 export const articles: Article[] = [
-  { date: "Aug 2026", published: "2026-08-30", title: "How Lucene’s BKD Tree Works — An Interactive Visualization", url: "/article/lucene-bkd-tree/" },
   { date: "Aug 2026", published: "2026-08-20", title: "MongoDB Vector Search: Binary Quantization at 75 Million Vectors", url: "/article/mongodb-binary-quantization-75m/" },
   { date: "Jun 2026", published: "2026-06-01", title: "ClickHouse vs MongoDB: When Milliseconds Become Minutes", url: "https://medium.com/@tintinwinata/clickhouse-vs-mongodb-when-milliseconds-become-minutes-3ea847eba015" },
   { date: "Jan 2026", published: "2026-01-16", title: "Built an AI That Auto-Creates JIRA Tickets From Production Errors—and Won", url: "https://medium.com/@tintinwinata/built-an-ai-that-auto-creates-jira-tickets-from-production-errors-and-won-1st-place-doing-it-79b4d83feb88" },
