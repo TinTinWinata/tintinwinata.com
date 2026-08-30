@@ -86,7 +86,7 @@ const websiteSchema = {
         <div>
           <p class="eyebrow">Senior Software Engineer · AI Infrastructure · Singapore</p>
           <h1>Justine Winata</h1>
-          <p class="lede">I build production AI and distributed systems. At cynapse.ai, I built a video pipeline ingesting 16,000 frames per second from 2,000 cameras. I now work on natural-language developing a copilot to search over millions of  detections.</p>
+          <p class="lede">I build production AI and distributed systems. At cynapse.ai, I built a video pipeline ingesting 16,000 frames per second from 2,000 cameras. I now build a natural-language copilot that searches over 75 million detections.</p>
           <nav class="contact-links" aria-label="Contact and profiles">
             <a href="mailto:tintin6892@gmail.com">email</a>
             <a href="https://github.com/TinTinWinata">github</a>
@@ -128,7 +128,11 @@ const websiteSchema = {
         <p>I write here and on <a class="inline-link" href="https://medium.com/@tintinwinata">Medium</a> about systems I build and technologies I evaluate.</p>
         <div class="article-list">
           {articles.map((article) => (
-            <a href={article.url} target="_blank" rel="noopener noreferrer">
+            <a
+              href={article.url}
+              target={article.url.startsWith("/") ? undefined : "_blank"}
+              rel={article.url.startsWith("/") ? undefined : "noopener noreferrer"}
+            >
               <time>{article.date}</time>
               <span>{article.title}</span>
             </a>
