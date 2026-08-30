@@ -108,7 +108,7 @@ const breadcrumbSchema = {
           <p class="section-label">02 · Mechanism</p>
           <h2>MongoDB Vector Search’s binary and scalar indexes fail in different places</h2>
           <p>Both MongoDB Vector Search indexes use compressed values during approximate nearest-neighbour search. The difference comes after retrieval.</p>
-          <SearchMechanism client:load />
+          <SearchMechanism client:visible />
           <p>MongoDB’s binary path only has to retrieve a true neighbour into the candidate pool. MongoDB Vector Search then uses the retained full-precision vectors to repair its ordering. Its scalar path ranks on the approximation, so increasing the pool cannot necessarily buy back information already lost in that comparison.</p>
         </section>
 
@@ -167,7 +167,7 @@ const breadcrumbSchema = {
           <p>The controls below are linked across every chart. Select one candidate setting and the mean recall and query-tail readouts update together.</p>
         </div>
         <div id="result-controls" class="results-controls-anchor">
-          <QuantizationCharts client:load />
+          <QuantizationCharts client:visible />
         </div>
       </section>
 
@@ -204,7 +204,7 @@ const breadcrumbSchema = {
 
           <div class="latency-results-surface">
             <div class="latency-results-inner">
-              <LatencyChart client:load />
+              <LatencyChart client:visible />
 
               <div class="latency-table-wrap latency-results">
                 <table>
