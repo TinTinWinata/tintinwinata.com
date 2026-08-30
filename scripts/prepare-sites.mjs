@@ -17,9 +17,11 @@ const mimeTypes = {
   ".pdf": "application/pdf",
   ".png": "image/png",
   ".svg": "image/svg+xml",
+  ".txt": "text/plain; charset=utf-8",
   ".webp": "image/webp",
   ".woff": "font/woff",
   ".woff2": "font/woff2",
+  ".xml": "application/xml; charset=utf-8",
 };
 
 async function collectFiles(directory) {
@@ -67,9 +69,33 @@ export default {
     }
 
     if (pathname.endsWith("/")) pathname += "index.html";
-    let asset = assets[pathname];
-    if (!asset && !pathname.split("/").at(-1)?.includes(".")) asset = assets["/index.html"];
-    if (!asset) return new Response("Not found", { status: 404 });
+
+    // Extensionless paths are directory routes. Redirect them to the canonical
+    // trailing-slash URL rather than serving a second copy of the same page.
+    if (!pathname.split("/").at(-1)?.includes(".")) {
+      if (assets[pathname + "/index.html"]) {
+        return Response.redirect(url.origin + pathname + "/" + url.search, 301);
+      }
+    }
+
+    const asset = assets[pathname];
+
+    // Anything genuinely missing must answer 404, not the homepage. Serving
+    // index.html here turned every unknown URL into an indexable duplicate.
+    if (!asset) {
+      const notFound = assets["/404.html"];
+      return new Response(
+        request.method === "HEAD" ? null : (notFound ? decodeBase64(notFound.body) : "Not found"),
+        {
+          status: 404,
+          headers: {
+            "Content-Type": notFound ? notFound.type : "text/plain; charset=utf-8",
+            "X-Content-Type-Options": "nosniff",
+            "X-Robots-Tag": "noindex",
+          },
+        },
+      );
+    }
 
     const headers = new Headers({
       "Content-Type": asset.type,

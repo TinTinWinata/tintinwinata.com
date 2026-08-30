@@ -7,6 +7,7 @@ type Props = {
   socialImage?: string;
   type?: "website" | "article";
   schema?: Record<string, unknown> | Record<string, unknown>[];
+  noindex?: boolean;
   article?: {
     publishedTime: string;
     modifiedTime?: string;
@@ -14,7 +15,7 @@ type Props = {
   };
 };
 
-const { title, description, socialImage = "/og.png", type = "website", schema, article } = Astro.props;
+const { title, description, socialImage = "/og.png", type = "website", schema, article, noindex = false } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const socialImageURL = new URL(socialImage, Astro.site);
 const structuredData = schema ? JSON.stringify(schema).replace(/</g, "\\u003c") : null;
@@ -28,6 +29,7 @@ const structuredData = schema ? JSON.stringify(schema).replace(/</g, "\\u003c") 
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#fdfcfa" />
+    {noindex && <meta name="robots" content="noindex, follow" />}
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" sizes="48x48" href="/icon-48.png" />
     <link rel="icon" type="image/png" sizes="96x96" href="/icon-96.png" />

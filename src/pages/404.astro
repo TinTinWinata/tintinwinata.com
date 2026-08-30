@@ -1,0 +1,20 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const title = "Page not found — Justine Winata";
+const description = "That page does not exist.";
+---
+
+<Layout title={title} description={description} noindex>
+  <main>
+    <div class="reading-column">
+      <header class="intro">
+        <div>
+          <p class="eyebrow">404</p>
+          <h1>Page not found</h1>
+          <p class="lede">That URL does not exist. Head back to the <a class="inline-link" href="/">homepage</a>, or read the <a class="inline-link" href="/article/mongodb-binary-quantization-75m/">MongoDB Vector Search benchmark</a>.</p>
+        </div>
+      </header>
+    </div>
+  </main>
+</Layout>
