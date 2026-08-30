@@ -1,6 +1,8 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import ExperienceTimeline from "../components/ExperienceTimeline";
+import ProjectList from "../components/ProjectList";
+import ArticleList from "../components/ArticleList";
 import { articles, awards, certifications, experiences, projects } from "../data/portfolio";
 
 const title = "Justine Winata — Senior Software Engineer, AI Infrastructure";
@@ -86,7 +88,7 @@ const websiteSchema = {
         <div>
           <p class="eyebrow">Senior Software Engineer · AI Infrastructure · Singapore</p>
           <h1>Justine Winata</h1>
-          <p class="lede">I build production AI and distributed systems. At cynapse.ai, I built a video pipeline ingesting 16,000 frames per second from 2,000 cameras. I now build a natural-language copilot that searches over 75 million detections.</p>
+          <p class="lede">Hi <span class="wave" aria-hidden="true">👋</span> I’m a senior software engineer passionate about applied AI and databases. Happy to talk about what it takes to make AI work in production.</p>
           <nav class="contact-links" aria-label="Contact and profiles">
             <a href="mailto:tintin6892@gmail.com">email</a>
             <a href="https://github.com/TinTinWinata">github</a>
@@ -104,40 +106,13 @@ const websiteSchema = {
 
       <section aria-labelledby="projects-heading">
         <h2 id="projects-heading">Selected engineering work</h2>
-        <div class="project-list">
-          {projects.map((project) => (
-            <article class="project">
-              <div class="project-image-wrap">
-                <img src={project.image} alt={project.imageAlt} loading="lazy" />
-              </div>
-              <div>
-                <div class="project-heading">
-                  <h3>{project.name}</h3>
-                  <span>{project.dates}</span>
-                </div>
-                <p>{project.prose}</p>
-                {project.siteUrl && <a class="inline-link" href={project.siteUrl}>{project.site} ↗</a>}
-              </div>
-            </article>
-          ))}
-        </div>
+        <ProjectList projects={projects} client:visible />
       </section>
 
       <section aria-labelledby="writing-heading">
         <h2 id="writing-heading">Writing</h2>
         <p>I write here and on <a class="inline-link" href="https://medium.com/@tintinwinata">Medium</a> about systems I build and technologies I evaluate.</p>
-        <div class="article-list">
-          {articles.map((article) => (
-            <a
-              href={article.url}
-              target={article.url.startsWith("/") ? undefined : "_blank"}
-              rel={article.url.startsWith("/") ? undefined : "noopener noreferrer"}
-            >
-              <time>{article.date}</time>
-              <span>{article.title}</span>
-            </a>
-          ))}
-        </div>
+        <ArticleList articles={articles} client:visible />
       </section>
 
       <section aria-labelledby="recognition-heading">

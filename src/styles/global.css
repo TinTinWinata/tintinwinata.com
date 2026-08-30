@@ -161,6 +161,11 @@ h1 {
   line-height: 1.62;
 }
 
+.lede .wave {
+  display: inline-block;
+  margin-right: 6px;
+}
+
 .contact-links {
   display: flex;
   flex-wrap: wrap;
@@ -203,7 +208,7 @@ section > p { color: var(--body); }
 .timeline-item {
   display: grid;
   grid-template-columns: 103px 15px minmax(0, 1fr);
-  margin-bottom: 32px;
+  margin-bottom: 30px;
 }
 
 .timeline-item:last-child { margin-bottom: 0; }
@@ -322,6 +327,18 @@ section > p { color: var(--body); }
 
 .role { margin-top: 5px; color: #5d574e; font-size: 16px; }
 
+.timeline-bullets {
+  margin: 9px 0 0;
+  padding-left: 15px;
+  color: #5d574e;
+  font-size: 15.5px;
+  line-height: 1.58;
+}
+
+.timeline-bullets li { margin-top: 5px; padding-left: 2px; }
+.timeline-bullets li:first-child { margin-top: 0; }
+.timeline-bullets li::marker { color: #b8b1a6; }
+
 .project-list { display: grid; gap: 28px; }
 
 .project {
@@ -371,7 +388,7 @@ section > p { color: var(--body); }
 
 .project .inline-link { font-size: 15px; }
 
-.older-projects { margin-top: 19px; }
+.older-projects { margin-top: 22px; }
 
 .text-button {
   border: 0;
@@ -416,6 +433,30 @@ section > p { color: var(--body); }
 .article-list time { color: var(--muted); font: 12px/1.8 var(--mono); }
 
 .article-list span { line-height: 1.5; }
+
+.writing-list a {
+  grid-template-columns: 90px minmax(0, 1fr) 104px;
+  align-items: center;
+}
+
+.article-cover {
+  width: 104px;
+  height: 58px;
+  overflow: hidden;
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  background: var(--line-soft);
+}
+
+.article-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  transition: transform .35s ease;
+}
+
+.writing-list a:hover .article-cover img { transform: scale(1.04); }
 
 .award-list { border-top: 1px solid var(--line-soft); }
 
@@ -610,6 +651,10 @@ footer p { margin: 0; color: var(--muted); font-size: 14px; }
   .timeline-copy { grid-column: 2; padding-left: 16px; }
   .project { grid-template-columns: 1fr; gap: 13px; }
   .project-image-wrap { height: auto; aspect-ratio: 16 / 8; }
+  .writing-list a { grid-template-columns: minmax(0, 1fr) 72px; gap: 12px; }
+  .writing-list time { grid-column: 1; }
+  .writing-list a > span:not(.article-cover) { grid-column: 1; }
+  .article-cover { grid-column: 2; grid-row: 1 / span 2; width: 72px; height: 46px; }
   .certificate-list a { grid-template-columns: 46px 52px minmax(0, 1fr); gap: 10px; }
   .certificate-icon { width: 46px; }
   footer { align-items: start; flex-direction: column; }

@@ -7,7 +7,7 @@ export type Experience = {
   logo: string;
   logoAlt: string;
   logoText?: string;
-  prose: string;
+  bullets?: string[];
 };
 
 export type Project = {
@@ -20,12 +20,21 @@ export type Project = {
   siteUrl?: string;
 };
 
+export type Visualization = {
+  name: string;
+  tag: string;
+  url: string;
+  blurb: string;
+};
+
 export type Article = {
   date: string;
   /** ISO publication date, used for the RSS feed. Medium entries come from its feed. */
   published: string;
   title: string;
   url: string;
+  cover: string;
+  coverAlt: string;
 };
 
 export const experiences: Experience[] = [
@@ -37,8 +46,10 @@ export const experiences: Experience[] = [
     about: "A video-intelligence company in Singapore whose platform runs across organisations in Asia and the US.",
     logo: "/company/cynapse-wordmark.png",
     logoAlt: "cynapse.ai logo",
-    prose:
-      "Built a distributed video pipeline ingesting 16,000 frames per second from 2,000 CCTV cameras, with RabbitMQ retry and backpressure mechanisms for downstream failures. Now building natural-language video search over 75M detections and an incident-response agent that analyzes logs, creates Jira tickets and opens pull requests with proposed fixes.",
+    bullets: [
+      "Working under CEO-led AI Lab team, selected to drive the company’s Generative AI strategy",
+      "Scaled Copilot, the first natural-language search product for VMS, to handle 37.5× corpus size with no loss in query relevance by introducing a search engine",
+    ],
   },
   {
     company: "The Software Practice",
@@ -48,8 +59,9 @@ export const experiences: Experience[] = [
     about: "A Singapore software consultancy delivering products for government agencies, major banks and airports.",
     logo: "/company/tsp-wordmark.png",
     logoAlt: "The Software Practice logo",
-    prose:
-      "Reduced manual QA time by 75% by building Selenium automation for a Singapore Government administration portal. Maintained 85% automated test coverage and supported a delivery process shipping more than two production deployments per day.",
+    bullets: [
+      "Cut manual QA time by 75% with Selenium automation for a Singapore Government administration portal, holding 85% automated coverage",
+    ],
   },
   {
     company: "The Questlabs ID",
@@ -60,8 +72,9 @@ export const experiences: Experience[] = [
     logo: "/company/questlabs.jpg",
     logoAlt: "The Questlabs ID logo",
     logoText: "The Questlabs ID",
-    prose:
-      "Built an automotive e-commerce system processing 100 product sales a month and a POS platform used to process IDR 200M+ in monthly gross sales, replacing manual workflows for an antivirus distributor.",
+    bullets: [
+      "Built a POS and e-commerce platform processing IDR 200M+ in monthly gross sales, replacing manual reseller purchasing and sales reporting for an antivirus distributor",
+    ],
   },
   {
     company: "freelancer.com",
@@ -71,8 +84,9 @@ export const experiences: Experience[] = [
     about: "Independent client work for teams in Uzbekistan, India and Indonesia.",
     logo: "/company/freelancer-wordmark.png",
     logoAlt: "Freelancer.com logo",
-    prose:
-      "Cut report-generation time by 96% for a production-management platform containing 16,000+ records, one of three responsive client applications delivered in six months.",
+    bullets: [
+      "Cut report-generation time by 96% on a production-management platform holding 16,000+ records, one of three client applications delivered in six months",
+    ],
   },
   {
     company: "BINUS University & BCA",
@@ -82,8 +96,9 @@ export const experiences: Experience[] = [
     about: "BINUS is one of Indonesia’s largest private universities; BCA’s PPTI programme trains future engineers.",
     logo: "/company/binus.jpg",
     logoAlt: "BINUS University logo",
-    prose:
-      "Trained 100+ instructors, led academic instructor research and taught up to ten classes a semester across databases, frontend, backend, OOP, data structures, deep learning and Android.",
+    bullets: [
+      "Trained 100+ instructors and taught up to ten classes a semester across databases, backend, data structures and deep learning",
+    ],
   },
 ];
 
@@ -123,11 +138,26 @@ export const earlierProjects = [
 ];
 
 export const articles: Article[] = [
-  { date: "Aug 2026", published: "2026-08-20", title: "MongoDB Vector Search: Binary Quantization at 75 Million Vectors", url: "/article/mongodb-binary-quantization-75m/" },
-  { date: "Jun 2026", published: "2026-06-01", title: "ClickHouse vs MongoDB: When Milliseconds Become Minutes", url: "https://medium.com/@tintinwinata/clickhouse-vs-mongodb-when-milliseconds-become-minutes-3ea847eba015" },
-  { date: "Jan 2026", published: "2026-01-16", title: "Built an AI That Auto-Creates JIRA Tickets From Production Errors—and Won", url: "https://medium.com/@tintinwinata/built-an-ai-that-auto-creates-jira-tickets-from-production-errors-and-won-1st-place-doing-it-79b4d83feb88" },
-  { date: "Dec 2025", published: "2025-12-20", title: "Event-Driven System: Real-Time Entity Linking With Apache Flink", url: "https://medium.com/@tintinwinata/event-driven-system-real-time-entity-linking-with-apache-flink-c52b3e198ca3" },
-  { date: "Oct 2025", published: "2025-10-18", title: "Solving Bitbucket’s AI Review Gap for 98% Less", url: "https://medium.com/@tintinwinata/solved-bitbucket-ai-review-gap-and-it-cost-98-less-than-enterprise-tools-ee77c6940d81" },
+  { date: "Aug 2026", published: "2026-08-20", title: "MongoDB Vector Search: Binary Quantization at 75 Million Vectors", url: "/article/mongodb-binary-quantization-75m/", cover: "/writing/mongodb-binary-quantization.jpg", coverAlt: "MongoDB binary quantization benchmark" },
+  { date: "Jun 2026", published: "2026-06-01", title: "ClickHouse vs MongoDB: When Milliseconds Become Minutes", url: "https://medium.com/@tintinwinata/clickhouse-vs-mongodb-when-milliseconds-become-minutes-3ea847eba015", cover: "/writing/clickhouse-vs-mongodb.jpg", coverAlt: "ClickHouse logo" },
+  { date: "Apr 2026", published: "2026-04-20", title: "Microsoft Agent Framework v1.0: Is It Worth the Hype?", url: "https://medium.com/@tintinwinata/microsoft-agent-framework-v1-0-is-it-worth-the-hype-8f5d06c54eb0", cover: "/writing/microsoft-agent-framework.jpg", coverAlt: "Microsoft Agent Framework" },
+  { date: "Jan 2026", published: "2026-01-16", title: "Built an AI That Auto-Creates JIRA Tickets From Production Errors—and Won", url: "https://medium.com/@tintinwinata/built-an-ai-that-auto-creates-jira-tickets-from-production-errors-and-won-1st-place-doing-it-79b4d83feb88", cover: "/writing/jira-incident-agent.jpg", coverAlt: "First place at the Red Asia × AWS AI Engineers Competition" },
+  { date: "Dec 2025", published: "2025-12-20", title: "Event-Driven System: Real-Time Entity Linking With Apache Flink", url: "https://medium.com/@tintinwinata/event-driven-system-real-time-entity-linking-with-apache-flink-c52b3e198ca3", cover: "/writing/flink-entity-linking.jpg", coverAlt: "Apache Flink logo" },
+  { date: "Nov 2025", published: "2025-11-07", title: "How Your System Talks Behind the Scenes With Sockets", url: "https://medium.com/@tintinwinata/how-your-system-talks-behind-the-scenes-with-sockets-10a1447ced0a", cover: "/writing/sockets-behind-the-scenes.jpg", coverAlt: "Socket communication illustration" },
+  { date: "Oct 2025", published: "2025-10-18", title: "Solving Bitbucket’s AI Review Gap for 98% Less", url: "https://medium.com/@tintinwinata/solved-bitbucket-ai-review-gap-and-it-cost-98-less-than-enterprise-tools-ee77c6940d81", cover: "/writing/bitbucket-ai-review.jpg", coverAlt: "Bitbucket AI reviewer illustration" },
+  { date: "Sep 2025", published: "2025-09-07", title: "Cursor Best Practices: A Deep Dive into Cursor Rules, GPT-5, Claude 4 and Gemini", url: "https://medium.com/@tintinwinata/cursor-best-practices-a-deep-dive-into-cursor-rules-gpt-5-claude-4-and-gemini-5371a4662cd9", cover: "/writing/cursor-best-practices.jpg", coverAlt: "Cursor editor" },
+  { date: "Aug 2025", published: "2025-08-19", title: "Website Monitoring with Prometheus, Grafana and Blackbox Exporter", url: "https://medium.com/@tintinwinata/website-monitoring-with-prometheus-grafana-and-blackbox-exporter-0231745b0e31", cover: "/writing/prometheus-grafana-monitoring.jpg", coverAlt: "Prometheus and Grafana monitoring dashboard" },
+  { date: "Jul 2025", published: "2025-07-06", title: "Bridging Worlds: A Practical Guide to C++ and C# Integration", url: "https://medium.com/@tintinwinata/bridging-worlds-a-practical-guide-to-c-and-c-integration-2ef6989f6ede", cover: "/writing/cpp-csharp-integration.jpg", coverAlt: "C++ and C# integration" },
+  { date: "Jan 2025", published: "2025-01-27", title: "How I Built a Retrieval-Augmented Generation System with Amazon Bedrock for $1 a Month", url: "https://medium.com/@tintinwinata/how-i-built-a-retrieval-augmented-generation-system-with-amazon-bedrock-for-1-month-d59a6bcee0da", cover: "/writing/bedrock-rag.jpg", coverAlt: "Amazon Bedrock retrieval-augmented generation" },
+];
+
+export const visualizations: Visualization[] = [
+  {
+    name: "BKD tree",
+    tag: "Apache Lucene",
+    url: "/visualization/lucene-bkd-tree/",
+    blurb: "Write the tree Lucene builds for numeric, date and geo fields, then run a range query over it and watch which blocks it actually reads.",
+  },
 ];
 
 export const awards = [

@@ -46,7 +46,13 @@ export default function ExperienceTimeline({ experiences }: Props) {
                 )}
               </div>
               <div className="role">{experience.role}</div>
-              <p>{experience.prose}</p>
+              {experience.bullets && (
+                <ul className="timeline-bullets">
+                  {experience.bullets.map((bullet) => (
+                    <li key={bullet}>{bullet}</li>
+                  ))}
+                </ul>
+              )}
             </div>
           </article>
         );
