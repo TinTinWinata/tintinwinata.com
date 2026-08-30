@@ -9,7 +9,7 @@ The site highlights selected engineering work, professional experience, technica
 - [Astro](https://astro.build/) for the static site
 - [React](https://react.dev/) for interactive components
 - TypeScript
-- OpenAI Sites for hosting
+- Vercel for hosting
 
 ## Local development
 
@@ -28,7 +28,7 @@ Astro will print the local URL when the server is ready.
 npm run build
 ```
 
-This runs Astro's type and content checks, creates the static production build, and prepares the output for deployment.
+This runs Astro's type and content checks and creates the static production build in `dist/`.
 
 ## Project structure
 
@@ -43,4 +43,6 @@ public/           Images, documents, and other static assets
 
 ## Deployment
 
-The production site is deployed with OpenAI Sites and configured for [tintinwinata.com](https://tintinwinata.com).
+The production site is deployed on Vercel and served at [tintinwinata.com](https://tintinwinata.com).
+DNS is managed through Cloudflare; `www` and the legacy `tintinwinata.my.id` domain
+both redirect permanently to the apex.
