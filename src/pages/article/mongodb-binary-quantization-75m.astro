@@ -4,7 +4,7 @@ import LatencyChart from "../../components/LatencyChart";
 import QuantizationCharts from "../../components/QuantizationCharts";
 import SearchMechanism from "../../components/SearchMechanism";
 
-const title = "MongoDB Vector Search Binary Quantization at 75 Million Vectors — Justine Winata";
+const title = "MongoDB Vector Search: Binary Quantization at 75M Vectors";
 const description = "A MongoDB Vector Search benchmark measuring binary and scalar quantization recall and isolated binary-search latency at 75-million scale.";
 const sourceDistribution = [
   { network: "ARDOT · Arkansas", documents: "30,876,071", share: "41.2%", cameras: "522" },
@@ -19,16 +19,50 @@ const sourceDistribution = [
   { network: "KT · Kyrgyzstan", documents: "939,486", share: "1.3%", cameras: "29" },
   { network: "Remaining hosts", documents: "603,508", share: "0.8%", cameras: "—" },
 ];
+
+const site = "https://tintinwinata.com";
+const articleUrl = `${site}/article/mongodb-binary-quantization-75m/`;
+const publishedTime = "2026-08-20";
+const modifiedTime = "2026-08-23";
+const tags = ["MongoDB", "Vector Search", "Binary Quantization", "Benchmark", "Approximate Nearest Neighbor"];
+
+const articleSchema = {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "@id": `${articleUrl}#article`,
+  headline: "Does MongoDB Vector Search’s binary quantization hold at 75 million vectors?",
+  name: title,
+  description,
+  url: articleUrl,
+  image: `${site}/writing/mongodb-vector-search-binary-quantization-75m.png`,
+  datePublished: publishedTime,
+  dateModified: modifiedTime,
+  inLanguage: "en",
+  wordCount: 2263,
+  keywords: tags,
+  author: { "@type": "Person", "@id": `${site}/#justine-winata`, name: "Justine Winata", url: site },
+  publisher: { "@type": "Person", "@id": `${site}/#justine-winata`, name: "Justine Winata", url: site },
+  mainEntityOfPage: { "@type": "WebPage", "@id": articleUrl },
+};
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Justine Winata", item: site },
+    { "@type": "ListItem", position: 2, name: "MongoDB Vector Search: Binary Quantization at 75M Vectors", item: articleUrl },
+  ],
+};
 ---
 
-<Layout title={title} description={description} socialImage="/writing/mongodb-vector-search-binary-quantization-75m.png" type="article">
+<Layout title={title} description={description} socialImage="/writing/mongodb-vector-search-binary-quantization-75m.png" type="article" schema={[articleSchema, breadcrumbSchema]} article={{ publishedTime, modifiedTime, tags }}>
   <main class="article-page">
     <div class="reading-progress" aria-hidden="true"></div>
     <article>
       <header class="article-hero">
         <div class="article-hero-copy">
           <a class="article-back" href="/">← Justine Winata</a>
-          <p class="eyebrow">MongoDB Vector Search · benchmark · August 2026</p>
+          <p class="eyebrow">MongoDB Vector Search · benchmark · <time datetime={publishedTime}>August 2026</time></p>
           <h1>Does MongoDB Vector Search’s binary quantization hold at 75 million vectors?</h1>
           <p class="article-deck">MongoDB’s public Vector Search benchmark reaches 15.3 million vectors. I wanted to know what happens much further out—when MongoDB Vector Search runs approximate search over 75 million real-world embeddings but can rescore at most 10,000 candidates.</p>
         </div>

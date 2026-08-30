@@ -5,9 +5,73 @@ import { articles, awards, certifications, experiences, projects } from "../data
 
 const title = "Justine Winata — Senior Software Engineer, AI Infrastructure";
 const description = "Singapore-based senior software engineer building production AI infrastructure, distributed video systems and developer tools.";
+
+const site = "https://tintinwinata.com";
+const personId = `${site}/#justine-winata`;
+
+const personSchema = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "@id": personId,
+  name: "Justine Winata",
+  alternateName: "TinTin Winata",
+  url: site,
+  image: `${site}/portrait.jpg`,
+  jobTitle: "Senior Software Engineer",
+  description,
+  email: "mailto:tintin6892@gmail.com",
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Singapore",
+    addressCountry: "SG",
+  },
+  worksFor: {
+    "@type": "Organization",
+    name: experiences[0].company,
+    url: experiences[0].url,
+  },
+  alumniOf: {
+    "@type": "CollegeOrUniversity",
+    name: "BINUS University",
+    url: "https://binus.ac.id/",
+  },
+  knowsAbout: [
+    "AI infrastructure",
+    "Distributed systems",
+    "Vector search",
+    "Video processing pipelines",
+    "MongoDB",
+    "Software engineering",
+  ],
+  sameAs: [
+    "https://github.com/TinTinWinata",
+    "https://www.linkedin.com/in/tintinwinata",
+    "https://medium.com/@tintinwinata",
+  ],
+  hasCredential: certifications.map((certificate) => ({
+    "@type": "EducationalOccupationalCredential",
+    name: certificate.title,
+    credentialCategory: "certification",
+    url: certificate.url,
+    recognizedBy: { "@type": "Organization", name: certificate.org },
+  })),
+  award: awards.map((entry) => `${entry.place} — ${entry.title} (${entry.org})`),
+};
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": `${site}/#website`,
+  url: site,
+  name: "Justine Winata",
+  description,
+  inLanguage: "en",
+  publisher: { "@id": personId },
+};
 ---
 
-<Layout title={title} description={description}>
+
+<Layout title={title} description={description} schema={[personSchema, websiteSchema]}>
   <main>
     <div class="reading-column">
       <header class="intro">
