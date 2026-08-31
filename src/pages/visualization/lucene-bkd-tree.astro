@@ -1,0 +1,111 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import BkdExplorer from "../../components/BkdExplorer";
+
+const title = "BKD Tree — Interactive Visualization | Justine Winata";
+const description = "An interactive model of Apache Lucene's BKD tree. Change the corpus and the leaf size, step through the writer building the tree, then run a range query and watch which leaf blocks get read.";
+
+const site = "https://tintinwinata.com";
+const pageUrl = `${site}/visualization/lucene-bkd-tree/`;
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "@id": `${pageUrl}#resource`,
+    name: "BKD tree — interactive visualization",
+    description,
+    url: pageUrl,
+    learningResourceType: "Interactive visualization",
+    educationalLevel: "Advanced",
+    about: ["Apache Lucene", "BKD tree", "k-d tree", "Range queries", "Search index internals"],
+    inLanguage: "en",
+    author: { "@type": "Person", "@id": `${site}/#justine-winata`, name: "Justine Winata", url: site },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Justine Winata", item: site },
+      { "@type": "ListItem", position: 2, name: "Visualizations", item: `${site}/visualization/` },
+      { "@type": "ListItem", position: 3, name: "BKD tree", item: pageUrl },
+    ],
+  },
+];
+---
+
+<Layout title={title} description={description} schema={schema}>
+  <main class="viz-page">
+    <header class="viz-head">
+      <div>
+        <h1>BKD tree</h1>
+        <p class="viz-deck"><strong>Block k-d tree</strong> — how Lucene range-filters numeric, date, IP and geo fields.</p>
+      </div>
+    </header>
+
+    <BkdExplorer client:load />
+
+    <footer class="viz-foot">
+      <div class="viz-byline">
+        <img src="/portrait.jpg" width="56" height="56" alt="Justine Winata" loading="lazy" />
+        <div>
+          <span>built by</span>
+          <strong><a href="/">Justine Winata</a></strong>
+          <small>Senior Software Engineer · AI Infrastructure · Singapore</small>
+          <p>I work on applied AI and databases, and I’m happy to talk about what it takes to make AI work in production.</p>
+          <a class="email-button" href="mailto:tintin6892@gmail.com">questions or collaboration →</a>
+        </div>
+      </div>
+      <nav aria-label="Sources">
+        <a href="https://users.cs.duke.edu/~pankaj/publications/papers/bkd-sstd.pdf" target="_blank" rel="noopener noreferrer">Bkd-tree paper (2003) ↗</a>
+        <a href="https://lucene.apache.org/core/10_1_0/core/org/apache/lucene/index/PointValues.html" target="_blank" rel="noopener noreferrer">PointValues javadoc ↗</a>
+        <a href="https://github.com/apache/lucene/tree/main/lucene/core/src/java/org/apache/lucene/util/bkd" target="_blank" rel="noopener noreferrer">BKDWriter · BKDReader source ↗</a>
+      </nav>
+    </footer>
+  </main>
+</Layout>
+
+<style is:global>
+  .viz-page {
+    width: min(1380px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 18px 0 64px;
+  }
+  .viz-head { display: flex; gap: 26px; align-items: baseline; margin-bottom: 12px; }
+  .viz-head > div { display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: baseline; min-width: 0; }
+  .viz-head h1 { margin: 0; font-size: 27px; font-weight: 600; letter-spacing: -.03em; line-height: 1.1; }
+  .viz-deck { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.45; }
+  .viz-deck strong { color: var(--body); font-weight: 600; }
+
+
+  .viz-foot {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 250px;
+    gap: 40px;
+    margin-top: 44px;
+    padding-top: 26px;
+    border-top: 1px solid var(--line);
+  }
+  .viz-foot span { display: block; margin-bottom: 7px; color: var(--accent); font: 500 10px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+  .viz-foot p { max-width: 640px; margin: 0; color: var(--body); font-size: 16px; line-height: 1.6; }
+  .viz-foot code { font: .84em/1.5 var(--mono); color: var(--ink); }
+  .viz-byline { display: flex; gap: 16px; align-items: flex-start; }
+  .viz-byline > img { flex: none; width: 56px; height: 56px; border-radius: 50%; object-fit: cover; background: var(--line-soft); box-shadow: 0 0 0 1px var(--line); }
+  .viz-byline > div { display: grid; justify-items: start; gap: 2px; min-width: 0; }
+  .viz-byline strong { color: var(--ink); font-size: 19px; font-weight: 600; letter-spacing: -.015em; line-height: 1.3; }
+  .viz-byline strong a { text-decoration: none; border-bottom: 1px solid var(--line); }
+  .viz-byline strong a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .viz-byline small { color: var(--muted); font: 11px/1.6 var(--mono); }
+  .viz-byline p { max-width: 520px; margin: 7px 0 0; color: var(--body); font-size: 16px; line-height: 1.6; }
+  .viz-byline .email-button { margin-top: 13px; border-radius: 4px; }
+  .viz-foot nav { display: grid; gap: 7px; align-content: start; }
+  .viz-foot nav a { color: var(--muted); font: 11px/1.5 var(--mono); text-decoration: none; }
+  .viz-foot nav a:hover { color: var(--accent); }
+
+  @media (max-width: 800px) {
+    .viz-page { width: min(100% - 32px, 620px); padding-top: 22px; }
+    .viz-head { flex-direction: column; gap: 10px; align-items: stretch; }
+    .viz-head h1 { font-size: 30px; }
+    .viz-foot { grid-template-columns: 1fr; gap: 22px; }
+  }
+</style>

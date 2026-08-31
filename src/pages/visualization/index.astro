@@ -1,0 +1,75 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { visualizations } from "../../data/portfolio";
+
+const title = "Visualizations — Justine Winata";
+const description = "Interactive visualizations of the systems I work on: data structures and algorithms you can change, step through, and query yourself.";
+
+const site = "https://tintinwinata.com";
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "@id": `${site}/visualization/#page`,
+  name: "Visualizations",
+  description,
+  url: `${site}/visualization/`,
+  inLanguage: "en",
+  isPartOf: { "@id": `${site}/#website` },
+  hasPart: visualizations.map((item) => ({
+    "@type": "LearningResource",
+    name: item.name,
+    description: item.blurb,
+    url: `${site}${item.url}`,
+  })),
+};
+---
+
+<Layout title={title} description={description} schema={schema}>
+  <main>
+    <div class="reading-column">
+      <header>
+        <a class="viz-index-back" href="/">← Justine Winata</a>
+        <p class="eyebrow">Interactive</p>
+        <h1>Visualizations</h1>
+        <p class="lede">Structures I work with, rebuilt small enough to see. Every one of these is a working model rather than a picture — change the inputs, step through the algorithm, and watch the result move.</p>
+      </header>
+
+      <section aria-labelledby="viz-list-heading">
+        <h2 id="viz-list-heading">All visualizations</h2>
+        <div class="viz-cards">
+          {visualizations.map((item) => (
+            <a class="viz-card" href={item.url}>
+              <span>{item.tag}</span>
+              <strong>{item.name}</strong>
+              <p>{item.blurb}</p>
+              <em>open ↗</em>
+            </a>
+          ))}
+        </div>
+      </section>
+    </div>
+  </main>
+</Layout>
+
+<style is:global>
+  .viz-index-back { display: inline-block; margin-bottom: 30px; color: var(--muted); font: 12px/1.5 var(--mono); text-decoration: none; }
+  .viz-index-back:hover { color: var(--accent); }
+  .viz-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .viz-card {
+    display: grid;
+    gap: 6px;
+    align-content: start;
+    padding: 22px 24px 20px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: #fff;
+    text-decoration: none;
+    transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+  }
+  .viz-card:hover { border-color: var(--accent); box-shadow: 0 12px 30px rgba(35, 32, 28, .07); transform: translateY(-1px); }
+  .viz-card span { color: var(--accent); font: 500 10px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+  .viz-card strong { color: var(--ink); font-size: 23px; font-weight: 600; letter-spacing: -.015em; line-height: 1.2; }
+  .viz-card p { margin: 2px 0 0; color: var(--body); font-size: 16px; line-height: 1.55; }
+  .viz-card em { margin-top: 8px; color: var(--muted); font: normal 11px/1.4 var(--mono); }
+  .viz-card:hover em { color: var(--accent); }
+</style>
